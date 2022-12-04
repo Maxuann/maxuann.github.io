@@ -66,13 +66,13 @@
         />
         <video v-if="!isShowImg" src=""></video>
         <div class="btn">
-          <div @click="showImgSub()" v-if="isShowImg" class="left">
+          <div @click="showImgAdd()" v-if="isShowImg" class="left">
             <img src="./assets/arrow.svg" />
           </div>
           <div @click="hideMedia()" class="close">
             <img src="./assets/close.svg" />
           </div>
-          <div @click="showImgAdd()" v-if="isShowImg" class="right">
+          <div @click="showImgSub()" v-if="isShowImg" class="right">
             <img src="./assets/arrow.svg" />
           </div>
         </div>
