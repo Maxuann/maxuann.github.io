@@ -3,11 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <link rel="icon" href="assets/favicon.ico" sizes="32x32" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="./css/style.css" />
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.13/dist/vue.min.js"></script>
-    <title>AppDisplay</title>
+    <title>App Display</title>
   </head>
   <body>
     <div
@@ -33,16 +32,14 @@
                 <p>{{index + 1}}</p>
                 <h4>{{item.title}}</h4>
               </div>
-              <img
-                v-if="!item.star"
-                src="./assets/star.svg"
-                @click.stop="item.star = true"
-              />
-              <img
-                v-else
-                src="./assets/star-active.svg"
-                @click.stop="item.star = false"
-              />
+              <div class="star" @click.stop="item.star = !item.star">
+                <img src="./assets/star.svg" />
+                <img
+                  class="isShow"
+                  :class="{show:item.star}"
+                  src="./assets/star-active.svg"
+                />
+              </div>
             </div>
             <p class="describe">{{item.describe}}</p>
             <div class="btn">
@@ -69,19 +66,15 @@
         />
         <video v-if="!isShowImg" src=""></video>
         <div class="btn">
-          <img
-            v-if="isShowImg"
-            class="left"
-            src="./assets/arrow.svg"
-            @click="showImgSub()"
-          />
-          <img class="close" src="./assets/close.svg" @click="hideMedia()" />
-          <img
-            v-if="isShowImg"
-            class="right"
-            src="./assets/arrow.svg"
-            @click="showImgAdd()"
-          />
+          <div @click="showImgSub()" v-if="isShowImg" class="left">
+            <img src="./assets/arrow.svg" />
+          </div>
+          <div @click="hideMedia()" class="close">
+            <img src="./assets/close.svg" />
+          </div>
+          <div @click="showImgAdd()" v-if="isShowImg" class="right">
+            <img src="./assets/arrow.svg" />
+          </div>
         </div>
       </div>
     </div>

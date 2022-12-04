@@ -2,6 +2,7 @@
   padding: 0;
   margin: 0;
 }
+
 html {
   font-size: 7.4vw;
   overflow-x: hidden;
@@ -19,6 +20,13 @@ body {
 body::-webkit-scrollbar {
   display: none;
 }
+
+img {
+  pointer-events: none;
+}
+
+@outsideRadia: 0.2rem;
+@insideRadia: 0.15rem;
 
 #app {
   padding: 0.5rem;
@@ -45,16 +53,16 @@ body::-webkit-scrollbar {
   width: 100%;
   .skin {
     width: 100%;
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 0.2rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: @outsideRadia;
     font-size: 0;
     overflow: hidden;
-    height: 7.34rem;
+    height: 7.33rem;
     transition: height 0.4s ease-in-out;
     margin-bottom: 0.5rem;
     img {
       width: 100%;
-      border-radius: 0.2rem;
+      border-radius: @outsideRadia;
     }
     .content {
       padding: 0 0.3rem 0.3rem;
@@ -63,6 +71,7 @@ body::-webkit-scrollbar {
         justify-content: space-between;
         align-items: center;
         padding: 0.2rem 0;
+        position: relative;
         div {
           display: flex;
           justify-content: start;
@@ -86,8 +95,21 @@ body::-webkit-scrollbar {
             line-height: 1;
           }
         }
-        img {
-          width: 1rem;
+        .star {
+          position: relative;
+          img {
+            width: 1rem;
+          }
+          .isShow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: 0.3s ease-out;
+          }
+          .show {
+            opacity: 1;
+          }
         }
       }
       .describe {
@@ -96,7 +118,7 @@ body::-webkit-scrollbar {
         text-align: justify;
         background-color: rgba(255, 255, 255, 0.2);
         padding: 0.3rem;
-        border-radius: 0.2rem;
+        border-radius: @insideRadia;
         margin-bottom: 0.3rem;
       }
       .btn {
@@ -108,12 +130,13 @@ body::-webkit-scrollbar {
           outline: 0;
           border: 0;
           background-color: rgba(255, 255, 255, 0.2);
-          border-radius: 0.3rem;
+          border-radius: @insideRadia;
           display: flex;
           justify-content: center;
           align-items: center;
           flex-direction: column;
           padding: 0.3rem 0 0.35rem;
+          transition: 0.3s ease-in-out;
           img {
             width: 1.5rem;
             margin-bottom: 0.1rem;
@@ -123,12 +146,15 @@ body::-webkit-scrollbar {
             color: #fff;
             font-weight: 300;
           }
+          &:active {
+            transform: scale(0.8);
+          }
         }
       }
     }
   }
   .active {
-    height: 13.4rem;
+    height: 13.55rem;
   }
 }
 
@@ -143,7 +169,7 @@ body::-webkit-scrollbar {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  transform: translateX(100%);
+  transform: translateY(-100%);
   opacity: 0;
   transition: 0.5s ease-in-out;
   > img,
@@ -160,22 +186,38 @@ body::-webkit-scrollbar {
     display: flex;
     justify-content: center;
     align-items: center;
+    font-size: 0;
     .left,
     .right {
-      width: 1.8rem;
       opacity: 0.4;
+      transition: transform 0.3s ease-in-out;
+      img {
+        width: 1.8rem;
+      }
+    }
+    .left:active {
+      transform: translateX(-0.6rem);
+    }
+    .right:active {
+      transform: translateX(0.6rem) rotate(180deg);
     }
     .close {
-      width: 2rem;
       opacity: 0.7;
       margin: 0 3rem;
+      transition: transform 0.5s ease-in-out;
+      img {
+        width: 2rem;
+      }
+      &:active {
+        transform: rotate(180deg) scale(2);
+      }
     }
-    img:nth-child(3) {
+    .right {
       transform: rotate(180deg);
     }
   }
 }
 .show {
-  transform: translateX(0);
+  transform: translateY(0);
   opacity: 1;
 }
