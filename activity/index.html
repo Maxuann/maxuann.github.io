@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="img/favicon.ico" sizes="32x32" />
+    <link rel="stylesheet" href="css/master.css" />
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.13/dist/vue.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <title>前台图工具</title>
+  </head>
+
+  <body>
+    <div id="app">
+      <div class="left-bar">
+        <div class="switchAPP">
+          <button
+            v-for="(item, index) in switchAPP"
+            ::key="item"
+            @mouseover="appPic(index)"
+            @mouseout="showAPP = 0"
+            @click="selectedAPP = index + 1"
+          >
+            {{item}}
+          </button>
+        </div>
+        <hr />
+        <a :href="`deposit/${switchAPP[selectedAPP-1]}存款教程.zip`">
+          <button class="deposit">下载存款教程</button>
+        </a>
+        <hr />
+        <div class="switchActivity">
+          <button
+            v-for="item in activity"
+            key="item.name"
+            @click="changeActivity(item)"
+          >
+            {{item.name}}
+          </button>
+        </div>
+        <hr />
+        <button
+          class="editPic none"
+          v-show="!editable"
+          @click="editable = true"
+        >
+          编辑
+        </button>
+        <button class="editPic ing" v-show="editable" @click="editable = false">
+          编辑中
+        </button>
+        <div class="editTable" v-show="editable">
+          <button @click="addTable()">添加表格</button>
+          <button @click="delTable()">删除表格</button>
+        </div>
+        <button class="downloadPic" @click="downloadPic()">保存截图</button>
+      </div>
+      <img class="appShow" :src="`img/${showAPP}.jpg`" alt="" />
+      <!-- 保存 --------------------------------- -->
+      <div
+        id="savePic"
+        :class="`pic app${selectedAPP}`"
+        :contenteditable="editable"
+      >
+        <div>
+          <div class="comment" v-if="selectedActivity.comment">
+            <p><span>活动时间: </span>{{selectedActivity.comment[0]}}</p>
+            <p><span>活动资格: </span>{{selectedActivity.comment[1]}}</p>
+          </div>
+          <div>
+            <table>
+              <tr>
+                <th v-for="item in selectedActivity.table.th" :key="item">
+                  {{item}}
+                </th>
+              </tr>
+              <tr
+                v-for="(items,index) in selectedActivity.table.td"
+                :key="index"
+              >
+                <td v-for="item in items" :key="item">{{item}}</td>
+              </tr>
+            </table>
+            <p class="tableComment" v-if="selectedActivity.tableComment">
+              {{selectedActivity.tableComment}}
+            </p>
+          </div>
+          <div class="rule" v-if="selectedActivity.rule">
+            <div
+              class="paragraph"
+              v-for="(item, index) in selectedActivity.rule"
+              :key="index"
+            >
+              <h3>{{item.title}}</h3>
+              <p v-for="text in item.text" :key="text">{{text}}</p>
+            </div>
+          </div>
+          <div class="example" v-if="selectedActivity.example">
+            <p>{{selectedActivity.example.text}}</p>
+            <div class="content">
+              <div class="box">
+                <p>你的团队总业绩<br />{{selectedActivity.example.chart[0]}}</p>
+              </div>
+              <img src="./img/arrow1.png" alt="" />
+              <div class="box">
+                <p>
+                  下级A<br />业绩{{selectedActivity.example.chart[1]}}=<br />{{selectedActivity.example.chart[2]}}股
+                </p>
+                <p>
+                  下级B<br />业绩{{selectedActivity.example.chart[3]}}=<br />{{selectedActivity.example.chart[4]}}股
+                </p>
+                <p>
+                  下级C<br />业绩{{selectedActivity.example.chart[5]}}=<br />{{selectedActivity.example.chart[6]}}股
+                </p>
+              </div>
+              <img src="./img/arrow2.png" alt="" />
+              <div class="box">
+                <p>
+                  我的股份<br />{{selectedActivity.example.chart[7]}}<br />如当前每股分红10元，则你的本周分红为{{selectedActivity.example.chart[8]}}万元
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display: none">
+      <img src="img/1.jpg" />
+      <img src="img/2.jpg" />
+      <img src="img/3.jpg" />
+      <img src="img/4.jpg" />
+      <img src="img/5.jpg" />
+      <img src="img/6.jpg" />
+      <img src="img/7.jpg" />
+    </div>
+  </body>
+  <script>
+    let vm = new Vue({
+      el: "#app",
+      data: {
+        switchAPP: [
+          "蓝色Q版",
+          "完美金",
+          "红牛系列",
+          "无双灰",
+          "土豪金",
+          "玫瑰金",
+          "红金",
+        ],
+        showAPP: 0,
+        selectedAPP: 1,
+        activity: [
+          {
+            name: "佣金表",
+            comment: ["长期有效", "所有本平台用户均可参加活动"],
+            table: {
+              th: ["序号", "级别", "业绩档位", "每万返佣"],
+              td: [
+                [1, "游客", "0 ~ 1万", 90],
+                [2, "玩家", "1万 ~ 2万", 110],
+                [3, "代理", "2万 ~ 4万", 130],
+                [4, "大代理", "4万 ~ 8万", 150],
+                [5, "一星代理", "8万 ~ 15万", 170],
+                [6, "二星代理", "15万 ~ 30万", 190],
+                [7, "三星代理", "30万 ~ 50万", 210],
+                [8, "四星代理", "50万 ~ 70万", 230],
+                [9, "五星代理", "70万 ~ 90万", 240],
+                [10, "六星代理", "90万 ~ 110万", 250],
+                [11, "七星代理", "110万 ~ 130万", 260],
+                [12, "八星代理", "130万 ~ 160万", 270],
+                [13, "九星代理", "160万 ~ 200万", 280],
+                [14, "总代理", "200万以上", 285],
+              ],
+            },
+            tableComment: "最高返佣: 285",
+            rule: false,
+          },
+          {
+            name: "六级提现分红",
+            comment: ["长期有效", "所有本平台用户均可参加活动"],
+            table: {
+              th: ["一级", "二级", "三级", "四级", "五级", "六级"],
+              td: [["20%", "20%", "20%", "20%", "10%", "10%"]],
+            },
+            tableComment: false,
+            rule: [
+              {
+                title: "活动规则",
+                text: [
+                  "1.提现时平台将会收取2%提现手续费，其中1%手续费将作为上级代理的推广奖励。",
+                  "2.此费用平台将按比例分给上级6层代理。",
+                  "3.此分红奖励每日结算，请进入取款界面进行领取。",
+                  "4.直属越多，所得的返利收益就会越多，将利益送给真正做事的代理。",
+                ],
+              },
+            ],
+          },
+          {
+            name: "无限代整盘分红",
+            comment: false,
+            table: {
+              th: ["星级", "名称", "周业绩", "每万业绩占股份"],
+              td: [
+                [1, "实习生", "5万+", 3],
+                [2, "职员", "15万+", 4],
+                [3, "助理", "30万+", 5],
+                [4, "主管", "80万+", 6],
+                [5, "部门经理", "150万+", 7],
+                [6, "区域经理", "300万+", 8],
+                [7, "总经理", "500万+", 9],
+                [8, "总监", "700万+", 10],
+                [9, "董事长", "1000万+", 11],
+                [10, "运营", "1500万+", 12],
+              ],
+            },
+            tableComment: false,
+            rule: [
+              {
+                title: "分红发放原则",
+                text: [
+                  "1.我们每周将平台利润的30%作为业绩分红，发放给满足条件的代理。",
+                  "2.平台的有效业绩=平台所有人周业绩5万以上的业绩总合，我的有效业绩=本周团队所有人周业绩5万以上的业绩总合。",
+                  "3.平台分红=（平台总分红*分红比例）如：当周总利润5万元，分红为3万元。",
+                  "4.参与本活动团队业绩要求不低于5万，如代理只有1个下级，则他的有效业绩为0。",
+                  "5.每周统计平台有效业绩后，系统自动转变成相应的股份数额，系统自动根据代理的有效业绩多少进行股数分配。",
+                  "6.系统自动根据我的有效业绩来决定你的股份数额，如本周我的有效业绩1000万，每万业绩自动换成11股。",
+                  "7.个人股份=团队股份-下级股份，如代理的只有1个下级，则他的股份为0。",
+                  "8.分红领取时间为每周一01:00 到周日22:00。",
+                  "9.系统自动依据等级划分所得分红。",
+                  "10.平台保留此活动最终解释权。",
+                ],
+              },
+            ],
+            example: {
+              text: "举例: ( 下图数值仅供参考）",
+              chart: [
+                "1000万×11=11000股",
+                "500万×9",
+                "4500",
+                "250万×7",
+                "1750",
+                "250万×7",
+                "1750",
+                "11000股-4500股-1950股-1750股=3000股",
+                "3",
+              ],
+            },
+          },
+          {
+            name: "电子捕鱼赢金榜-888",
+            comment: ["长期有效", "所有本平台用户均可参加活动"],
+            table: {
+              th: ["排名", "奖金"],
+              td: [
+                ["第一名", 888],
+                ["第二名", 588],
+                ["第三名", 388],
+                ["第四名", 288],
+                ["第五名", 188],
+                ["第六名", 88],
+                ["第七名", 58],
+                ["第八名", 18],
+              ],
+            },
+            tableComment:
+              "注：每日盈利最多的玩家方可参与领取奖励。（上排行榜赢金必须超过3000）",
+            rule: [
+              {
+                title: "活动规则",
+                text: [
+                  "1.奖金会在每日凌晨00:30自动派发，请注意查收站内邮件。",
+                  "2.奖金需3倍流水即可提现。",
+                  "3.此优惠仅限电子/捕鱼游戏使用，若游戏其他游戏将扣除全部额度。",
+                  "4.发现任何团队或个人以不正当方式套利，将永久封号处理。",
+                ],
+              },
+            ],
+          },
+          {
+            name: "电子捕鱼赢金榜-1288",
+            comment: ["长期有效", "所有本平台用户均可参加活动"],
+            table: {
+              th: ["排名", "奖金"],
+              td: [
+                ["第一名", 1288],
+                ["第二名", 888],
+                ["第三名", 588],
+                ["第四名", 388],
+                ["第五名", 288],
+                ["第六名", 188],
+                ["第七名", 88],
+                ["第八名", 58],
+              ],
+            },
+            tableComment:
+              "注：每日盈利最多的玩家方可参与领取奖励。（上排行榜赢金必须超过3000）",
+            rule: [
+              {
+                title: "活动规则",
+                text: [
+                  "1.奖金会在每日凌晨00:30自动派发，请注意查收站内邮件。",
+                  "2.奖金需3倍流水即可提现。",
+                  "3.此优惠仅限电子/捕鱼游戏使用，若游戏其他游戏将扣除全部额度。",
+                  "4.发现任何团队或个人以不正当方式套利，将永久封号处理。",
+                ],
+              },
+            ],
+          },
+          {
+            name: "全电子流水排行榜-888",
+            comment: ["长期有效", "所有本平台用户均可参加活动"],
+            table: {
+              th: ["排名", "奖金"],
+              td: [
+                ["第一名", 888],
+                ["第二名", 588],
+                ["第三名", 388],
+                ["第四名", 288],
+                ["第五名", 188],
+                ["第六名", 88],
+                ["第七名", 58],
+                ["第八名", 18],
+              ],
+            },
+            tableComment: "注：每日满8万以上投注流水的玩家就可以参与领取奖励。",
+            rule: [
+              {
+                title: "活动规则",
+                text: [
+                  "1.奖金会在每日凌晨00:30自动派发，请注意查收站内邮件。",
+                  "2.奖金需3倍流水即可提现。",
+                  "3.此优惠仅限电子游戏使用，若游戏其他场馆将扣除全部额度。",
+                  "4.发现任何团队或个人以不正当方式套利，将永久封号处理。",
+                ],
+              },
+            ],
+          },
+          {
+            name: "全电子流水排行榜-1288",
+            comment: ["长期有效", "所有本平台用户均可参加活动"],
+            table: {
+              th: ["排名", "奖金"],
+              td: [
+                ["第一名", 1288],
+                ["第二名", 888],
+                ["第三名", 588],
+                ["第四名", 388],
+                ["第五名", 288],
+                ["第六名", 188],
+                ["第七名", 88],
+                ["第八名", 58],
+              ],
+            },
+            tableComment:
+              "注：每日满10万以上投注流水的玩家就可以参与领取奖励。",
+            rule: [
+              {
+                title: "活动规则",
+                text: [
+                  "1.奖金会在每日凌晨00:30自动派发，请注意查收站内邮件。",
+                  "2.奖金需3倍流水即可提现。",
+                  "3.此优惠仅限电子游戏使用，若游戏其他场馆将扣除全部额度。",
+                  "4.发现任何团队或个人以不正当方式套利，将永久封号处理。",
+                ],
+              },
+            ],
+          },
+          {
+            name: "UG棋牌流水排行榜-888",
+            comment: ["长期有效", "所有本平台用户均可参加活动"],
+            table: {
+              th: ["排名", "奖金"],
+              td: [
+                ["第一名", 888],
+                ["第二名", 588],
+                ["第三名", 388],
+                ["第四名", 288],
+                ["第五名", 188],
+                ["第六名", 88],
+                ["第七名", 58],
+                ["第八名", 18],
+              ],
+            },
+            tableComment:
+              "注：每日满8万以上投注流水的玩家就可以参与领取奖励。（允许平刷）",
+            rule: [
+              {
+                title: "活动规则",
+                text: [
+                  "1.奖金会在每日凌晨00:30自动派发，请注意查收站内邮件。",
+                  "2.奖金需3倍流水即可提现。",
+                  "3.此活动仅限UG棋牌使用。",
+                  "4.发现任何团队或个人以不正当方式套利，将永久封号处理。",
+                ],
+              },
+            ],
+          },
+          {
+            name: "UG棋牌流水排行榜-1288",
+            comment: ["长期有效", "所有本平台用户均可参加活动"],
+            table: {
+              th: ["排名", "奖金"],
+              td: [
+                ["第一名", 1288],
+                ["第二名", 888],
+                ["第三名", 588],
+                ["第四名", 388],
+                ["第五名", 288],
+                ["第六名", 188],
+                ["第七名", 88],
+                ["第八名", 58],
+              ],
+            },
+            tableComment:
+              "注：每日满8万以上投注流水的玩家就可以参与领取奖励。（允许平刷）",
+            rule: [
+              {
+                title: "活动规则",
+                text: [
+                  "1.奖金会在每日凌晨00:30自动派发，请注意查收站内邮件。",
+                  "2.奖金需3倍流水即可提现。",
+                  "3.此活动仅限UG棋牌使用。",
+                  "4.发现任何团队或个人以不正当方式套利，将永久封号处理。",
+                ],
+              },
+            ],
+          },
+          {
+            name: "新用户首存",
+            comment: ["长期有效", "所有本平台新用户均可参加活动"],
+            table: {
+              th: ["首存金额", "新用户首存"],
+              td: [
+                [300, 48],
+                [500, 68],
+                [1000, 88],
+                [2000, 128],
+                [3000, 188],
+                [5000, 288],
+                [10000, 588],
+                [20000, 1288],
+              ],
+            },
+            tableComment: false,
+            rule: [
+              {
+                title: "活动规则",
+                text: [
+                  "每日首存充值300元以上的新用户均可参与，领取彩金的用户需打满（本金+红利）的三倍流水方可提现。首存优惠不与救援金共享。",
+                ],
+              },
+              {
+                title: "指定游戏",
+                text: [
+                  "领取彩金的用户仅限玩电子游戏，街机类电子（Yoplay）除外，若玩其他游戏将扣除全部金额。",
+                ],
+              },
+              {
+                title: "领取规则",
+                text: [
+                  "充值后的第一时间点击主页左上方“优惠”按钮申请彩金，如已产生投注行为将视为自动放弃。",
+                ],
+              },
+              {
+                title: "温馨提示",
+                text: [
+                  "由于网站存款有收取手续费，请您务必到账成功金额为以上申请档位方可参与此优惠，例如：手续费1%，提交505元，到账500元，可以申请此优惠。",
+                ],
+              },
+            ],
+            selectedActivity: {},
+          },
+          {
+            name: "老用户首存",
+            comment: ["长期有效", "所有本平台老用户均可参加活动"],
+            table: {
+              th: ["首存金额", "新用户首存"],
+              td: [
+                [500, 6],
+                [1000, 16],
+                [2000, 26],
+                [3000, 36],
+                [5000, 56],
+                [10000, 166],
+                [20000, 366],
+              ],
+            },
+            tableComment: false,
+            rule: [
+              {
+                title: "活动规则",
+                text: [
+                  "每日首存充值500元以上的新用户均可参与，领取彩金的用户需打满（本金+红利）的三倍流水方可提现。首存优惠不与救援金共享。",
+                ],
+              },
+              {
+                title: "指定游戏",
+                text: [
+                  "领取彩金的用户仅限玩电子游戏，街机类电子（Yoplay）除外，若玩其他游戏将扣除全部金额。",
+                ],
+              },
+              {
+                title: "领取规则",
+                text: [
+                  "充值后的第一时间点击主页左上方“优惠”按钮申请彩金，如已产生投注行为将视为自动放弃。",
+                ],
+              },
+              {
+                title: "温馨提示",
+                text: [
+                  "由于网站存款有收取手续费，请您务必到账成功金额为以上申请档位方可参与此优惠，例如：手续费1%，提交505元，到账500元，可以申请此优惠。",
+                ],
+              },
+            ],
+          },
+          {
+            name: "全民电子救援金",
+            comment: ["长期有效", "所有本平台用户均可参加活动"],
+            table: {
+              th: ["亏损金额", "电子"],
+              td: [
+                [1000, 58],
+                [3000, 108],
+                [5000, 188],
+                [10000, 388],
+                [30000, 1088],
+                [50000, 1888],
+              ],
+            },
+            tableComment: false,
+            rule: [
+              {
+                title: "活动规则",
+                text: [
+                  "1.计算时间：每日00:00—23:59，用户需在次日01:00-23:59点击主页左上方“优惠”按钮申请前一天的救援金，逾期则视为自动放弃。",
+                  "2.救援金将根据当日玩家在电子场馆亏损额度多少而获得不同等级的奖金，当日亏损 = 存款 - 取款 - 余额(账户余额需小于10元)，例如：玩家当日亏损1000元，次日可申请58元礼金。",
+                  "3.如何申请：产生亏损的次日01:00-23:59点击主页左上方“优惠”按钮申请，所申请的救援金会打到用户的游戏账户内。",
+                  "4.需在电子打满5倍流水方可提现，若游戏其他场馆将扣除全部额度。",
+                  "5.此优惠无法与首存优惠共享。",
+                ],
+              },
+            ],
+          },
+          {
+            name: "周流水分红",
+            comment: ["长期有效", "所有本平台用户均可参加活动"],
+            table: {
+              th: ["星级", "名称", "周业绩", "每万业绩占股份"],
+              td: [
+                [1, "实习生", "5万+", 3],
+                [2, "职员", "15万+", 4],
+                [3, "助理", "30万+", 5],
+                [4, "主管", "80万+", 6],
+                [5, "部门经理", "150万+", 7],
+                [6, "区域经理", "300万+", 8],
+                [7, "总经理", "500万+", 9],
+                [8, "总监", "700万+", 10],
+                [9, "董事长", "1000万+", 11],
+                [10, "运营", "1500万+", 12],
+              ],
+            },
+            tableComment: false,
+            rule: [
+              {
+                title: "活动规则",
+                text: [
+                  "1.公司每万拿出20元作为周流水分红，发给满足条件的代理。",
+                  "2.比如本周总盘总业绩为2000万流水，周业绩分红为2000*20 = 4万分红。",
+                  "3.每周统计平台有效业绩后，系统自动转变成相应的股份数额，系统自动根据代理的有效业绩进行股数分配。",
+                  "4.系统自动根据“我的有效业绩”来决定“你的股份数额”。例如：本周我的有效业绩1000万。每万业绩自动换成11股。",
+                  "5.个人股份=团队股份-下级股份。",
+                  "6.分红领取时间为周一1点～周日23点。",
+                  "7.系统自动依据等级划分分红。",
+                ],
+              },
+            ],
+          },
+        ],
+        selectedActivity: {},
+        editable: false,
+      },
+      methods: {
+        appPic(index) {
+          this.showAPP = index + 1;
+        },
+        changeActivity(item) {
+          this.selectedActivity = item;
+        },
+        addTable() {
+          let data = this.selectedActivity.table.td;
+          data = data[data.length - 1];
+          this.selectedActivity.table.td.push(data);
+        },
+        delTable() {
+          this.selectedActivity.table.td.pop();
+        },
+        downloadPic() {
+          this.editable = false;
+          setTimeout(() => {
+            let pic = document.getElementById("savePic");
+            let name = this.selectedActivity.name;
+            pic.style.transform = "scale(1)";
+            html2canvas(pic, {
+              width: 1000,
+              scale: 1,
+            }).then(function (canvas) {
+              let imgUri = canvas
+                .toDataURL("image/png")
+                .replace("image/png", "image/octet-stream"); // 获取生成的图片的url
+              let saveLink = document.createElement("a");
+              saveLink.href = imgUri;
+              saveLink.download = name + ".png";
+              saveLink.click();
+            });
+            pic.removeAttribute("style");
+          }, 10);
+        },
+      },
+      watch: {
+        // drawing: function (newVal) {
+        // },
+      },
+      mounted() {
+        this.selectedActivity = this.activity[0];
+      },
+    });
+  </script>
+</html>
