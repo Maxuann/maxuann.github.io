@@ -35,6 +35,24 @@ button {
   outline: 10px solid red;
 }
 
+::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  cursor: pointer;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.1);
+  transition: color 0.2s ease;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 10px;
+}
+
 hr {
   border: 0;
   padding: 3px;
@@ -54,7 +72,7 @@ hr {
 }
 
 .left-bar {
-  width: 180px;
+  width: 220px;
   padding: 15px;
   position: fixed;
   top: 0;
@@ -65,7 +83,7 @@ hr {
     flex-direction: row;
     flex-wrap: wrap;
     button {
-      width: 87px;
+      width: 107px;
       text-align: center;
       background-color: @blue;
     }
@@ -77,6 +95,9 @@ hr {
   .switchActivity {
     display: flex;
     flex-direction: column;
+    max-height: calc(100vh - 400px);
+    overflow-y: auto;
+    padding-right: 6px;
     button {
       color: #fff;
       background-color: @blue + 40;
