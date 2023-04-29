@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <link rel="icon" href="img_oss/favicon.ico" sizes="32x32" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no" />
+  <link rel="stylesheet" href="css/main.css" />
+  <script type="text/javascript" src="data/config.js"></script>
+  <script type="text/javascript" src="data/domainuid.js"></script>
+  <script type="text/javascript" src="js/main.min.js"></script>
+  <script src="./js_oss/spine-player.js"></script>
+  <title>Gold4444 Download</title>
+  <script type="text/javascript">
+    openSeverDate.setFullYear(2021, 11, 15); // 月份从0开始，需要-1
+    openSeverDate.setHours(16);
+    openSeverDate.setMinutes(16);
+    openSeverDate.setSeconds(0);
+    // 下载地址
+    IOS_URL_DEF = "";
+    ANDROID_URL_DEF = "";
+    checkSever();
+  </script>
+</head>
+
+<body>
+  <div class="header">
+    <img src="img/transparent.png" data-src="logo.png" class="logo" />
+  </div>
+  <div class="container">
+    <div class="screen screen1">
+      <img src="img/transparent.png" data-src="1/gold.png" alt="" />
+      <div id="character"></div>
+      <img src="img/transparent.png" data-src="1/coinBox.png" alt="" />
+      <img src="img/transparent.png" data-src="1/title.png" alt="" />
+      <img src="img/transparent.png" data-src="1/coin.png" alt="" />
+      <div>
+        <button id="phoneDownload" onclick="onClickH5Download()">
+          <p>Start Game</p>
+        </button>
+      </div>
+      <img class="more" src="img/transparent.png" data-src="1/more.svg" alt="" />
+    </div>
+    <div class="screen screen2">
+      <img src="img/transparent.png" data-src="2/character.png" alt="" />
+      <img src="img/transparent.png" data-src="2/title.png" alt="" />
+    </div>
+    <div class="screen screen5">
+      <div></div>
+      <img src="img/transparent.png" data-src="5/coinTop.png" alt="" />
+      <img src="img/transparent.png" data-src="5/coinButtom.png" alt="" />
+      <img src="img/transparent.png" data-src="5/gold.png" alt="" />
+      <img src="img/transparent.png" data-src="5/service.png" alt="" />
+      <img src="img/transparent.png" data-src="5/title.png" alt="" />
+    </div>
+    <div class="screen screen3">
+      <img src="img/transparent.png" data-src="3/screenshot.png" alt="" />
+      <img src="img/transparent.png" data-src="3/coin.png" alt="" />
+      <img src="img/transparent.png" data-src="3/fish.png" alt="" />
+      <img src="img/transparent.png" data-src="3/fire.png" alt="" />
+      <img src="img/transparent.png" data-src="3/title1.png" alt="" />
+      <img src="img/transparent.png" data-src="3/title2.png" alt="" />
+    </div>
+    <div class="screen screen4">
+      <img src="img/transparent.png" data-src="4/rotation1.jpg" alt="" />
+      <img src="img/transparent.png" data-src="4/rotation2.jpg" alt="" />
+      <img src="img/transparent.png" data-src="4/rotation3.jpg" alt="" />
+      <img src="img/transparent.png" data-src="4/rotation4.jpg" alt="" />
+      <img src="img/transparent.png" data-src="4/rotation5.jpg" alt="" />
+      <img src="img/transparent.png" data-src="4/character.png" alt="" />
+      <img src="img/transparent.png" data-src="4/title.png" alt="" />
+    </div>
+    <div class="screen6">
+      <img src="img/transparent.png" data-src="6/light.jpg" alt="" />
+      <img src="img/transparent.png" data-src="6/box.png" alt="" />
+      <div>
+        <img src="img/transparent.png" data-src="6/suona.png" alt="" />
+      </div>
+      <img src="img/transparent.png" data-src="6/title.png" alt="" />
+      <img src="img/transparent.png" data-src="6/star.png" alt="" />
+      <img src="img/transparent.png" data-src="6/star.png" alt="" />
+      <img src="img/transparent.png" data-src="6/star.png" alt="" />
+    </div>
+  </div>
+</body>
+<script>
+  if (isLoadOSS) {
+    var img = new Image();
+    img.src = FILE_PARTNER + "/" + IMAGE_OSS + "transparent.png";
+    img.onerror = function () {
+      loadSpine("");
+    };
+    img.onload = function () {
+      loadSpine(FILE_PARTNER + "/");
+    };
+  } else {
+    loadSpine("");
+  }
+  function loadSpine(fileUrl) {
+    fileUrl = fileUrl + "img_oss/animation/";
+    var jsControlledPlayer = new spine.SpinePlayer("character", {
+      jsonUrl: fileUrl + "animation.json",
+      atlasUrl: fileUrl + "animation.atlas",
+      animation: "idle",
+      showControls: false,
+      premultipliedAlpha: true,
+      backgroundColor: "#00000000",
+      alpha: true,
+      preserveDrawingBuffer: true,
+      defaultMix: 1,
+    });
+  }
+</script>
+
+</html>
