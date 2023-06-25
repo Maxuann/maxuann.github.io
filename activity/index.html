@@ -68,7 +68,7 @@
             <p><span>活动资格: </span>{{selectedActivity.comment[1]}}</p>
           </div>
           <div>
-            <table>
+            <table v-if="selectedActivity.table">
               <tr>
                 <th v-for="item in selectedActivity.table.th" :key="item">
                   {{item}}
