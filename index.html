@@ -60,6 +60,7 @@
           <input name="money" type="text" v-model.lazy="drawing" />
           <button @click="changeOKPay()">切换OKPay</button>
           <button @click="changeUSDT()">切换USDT</button>
+          <button @click="changeTOPay()">切换TOPay</button>
         </div>
         <button class="downloadPic" @click="downloadPic()">保存截图</button>
       </div>
@@ -173,8 +174,8 @@
         },
         changeTOPAY() {
           this.icon = 27;
-          this.type = "TOPAY";
-          this.serviceCharge = 0;
+          this.type = "TOPay";
+          this.serviceCharge = 0.02;
         },
         changeUSDT() {
           this.icon = 27;
