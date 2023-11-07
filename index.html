@@ -41,8 +41,8 @@
               <td contenteditable>{{item.date}}</td>
               <td>{{banks[icon]}}</td>
               <td>{{item.drawing}}</td>
-              <td>{{item.drawing * serviceCharge}}</td>
-              <td>{{item.drawing * (1 - serviceCharge)}}</td>
+              <td>{{Math.round(item.drawing * serviceCharge)}}</td>
+              <td>{{Math.ceil(item.drawing * (1 - serviceCharge))}}</td>
               <td>提款完成</td>
               <td><img src="img/copy.png" alt="" /></td>
               <td>{{type}}</td>
