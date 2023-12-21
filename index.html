@@ -20,7 +20,8 @@
         <img v-if="bg && appSkin == 'blue'" src="img/blue-btn-ios.png" />
         <img v-if="!bg && appSkin == 'blue'" src="img/blue-btn-android.png" />
       </div>
-      <img src="img/blue-okpay-pic.png" v-if="type === 'OKPay'" alt="" class="okpay-pic" />
+      <img src="img/blue-okpay-pic.png" v-if="type === 'OKPay' && appSkin == 'blue'" alt="" class="okpay-pic" />
+      <img src="img/red-nottopay.png" v-if="type !== 'TOPay' && appSkin == 'red'" alt="" class="red-nottopay-pic" />
       <div class="content" :class="appSkin">
         <table class="item">
           <tr id="tr">
