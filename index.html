@@ -1,279 +1,267 @@
 <!DOCTYPE html>
 <html lang="">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="img/favicon.ico" sizes="32x32" />
-    <link rel="stylesheet" href="css/master.css" />
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.13/dist/vue.min.js"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <title>截图工具</title>
-  </head>
 
-  <body>
-    <div id="app">
-      <div id="pic">
-        <div class="bg">
-          <img :src="`img/platform/${selectedPlatform}.jpg`" />
-          <img src="img/fg.png" />
-          <img v-if="bg" src="img/btn-ios.png" />
-          <img v-else src="img/btn-android.png" />
-        </div>
-        <img
-          src="img/okpay-pic.png"
-          v-if="type === 'OKPay'"
-          alt=""
-          class="okpay-pic"
-        />
-        <div class="content">
-          <table class="item">
-            <tr id="tr">
-              <th>时间</th>
-              <th>银行</th>
-              <th>提款额</th>
-              <th>手续费</th>
-              <th>到账额</th>
-              <th>状态</th>
-              <th>单号</th>
-              <th>类型</th>
-            </tr>
-            <tr v-for="item in tableData">
-              <td contenteditable>{{item.date}}</td>
-              <td>{{banks[icon]}}</td>
-              <td>{{item.drawing}}</td>
-              <td>{{Math.floor(item.drawing * serviceCharge)}}</td>
-              <td>{{Math.ceil(item.drawing * (1 - serviceCharge))}}</td>
-              <td>提款完成</td>
-              <td><img src="img/copy.png" alt="" /></td>
-              <td>{{type}}</td>
-            </tr>
-          </table>
-        </div>
-        <div class="page">
-          <p contenteditable>每页20条 共1页</p>
-          <p contenteditable>1</p>
-        </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="img/favicon.ico" sizes="32x32" />
+  <link rel="stylesheet" href="css/master.css" />
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.13/dist/vue.min.js"></script>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <title>截图工具</title>
+</head>
+
+<body>
+  <div id="app">
+    <div id="pic">
+      <div class="bg">
+        <img :src="`img/platform/${selectedPlatform}.jpg`" />
+        <img :src="`img/${appSkin}-fg.png`" />
+        <img v-if="bg && appSkin == 'blue'" src="img/blue-btn-ios.png" />
+        <img v-if="!bg && appSkin == 'blue'" src="img/blue-btn-android.png" />
       </div>
-      <div class="sevePic">
-        <div class="input">
-          <label for="money">金额: </label>
-          <input name="money" type="text" v-model.lazy="drawing" />
-          <button @click="changeOKPay()">切换OKPay</button>
-          <button @click="changeUSDT()">切换USDT</button>
-          <button @click="changeTOPay()">切换TOPay</button>
-        </div>
-        <button class="downloadPic" @click="downloadPic()">保存截图</button>
+      <img src="img/blue-okpay-pic.png" v-if="type === 'OKPay'" alt="" class="okpay-pic" />
+      <div class="content" :class="appSkin">
+        <table class="item">
+          <tr id="tr">
+            <th>时间</th>
+            <th>银行</th>
+            <th>提款额</th>
+            <th>手续费</th>
+            <th>到账额</th>
+            <th>状态</th>
+            <th>单号</th>
+            <th>类型</th>
+          </tr>
+          <tr v-for="item in tableData">
+            <td contenteditable>{{item.date}}</td>
+            <td>{{banks[icon]}}</td>
+            <td>{{item.drawing}}</td>
+            <td>{{Math.floor(item.drawing * serviceCharge)}}</td>
+            <td>{{Math.ceil(item.drawing * (1 - serviceCharge))}}</td>
+            <td>提款完成</td>
+            <td><img :src="`img/${appSkin}-copy.png`" alt="" /></td>
+            <td>{{type}}</td>
+          </tr>
+        </table>
       </div>
-      <div class="switch">
-        <h2>{{selectedPlatform}}</h2>
-        <hr />
-        <div>
-          <a href="/wmjt">
-            <button>完美娱乐</button>
-          </a>
-          <a href="/hsss">
-            <button>红色皮肤</button>
-          </a>
-          <a href="/wsss">
-            <button>无双</button>
-          </a>
-          <a href="/thj">
-            <button>土豪金</button>
-          </a>
-          <a href="/hj">
-            <button>红金</button>
-          </a>
-          <button
-            v-for="(value, key) in platform"
-            @click="changePlatform(value)"
-            :key="key"
-          >
-            {{value}}
-          </button>
-        </div>
+      <div class="page" v-if="appSkin == 'blue'">
+        <p contenteditable>每页20条 共1页</p>
+        <p contenteditable>1</p>
       </div>
     </div>
-  </body>
-  <script>
-    let vm = new Vue({
-      el: "#app",
-      data: {
-        tableData: [],
-        drawing: "",
-        bg: 1,
-        icon: 1,
-        type: "银行卡",
-        serviceCharge: 0.02,
-        platform: [
-          "保时捷",
-          "浪花娱乐",
-          "盛华国际",
-          "福鼠娱乐",
-          "米兰娱乐",
-          "樱花娱乐",
-          "仲夏夜",
-          "韩潮娱乐",
-          "天荷娱乐",
-          "杜卡迪",
-          "腾龙国际",
-          "海洋娱乐",
-          "双子棋牌",
-          "川崎娱乐",
-          "银河国际",
-          "开运棋牌",
-          "吉祥娱乐",
-          "月夕娱乐",
-          "钱江娱乐",
-          "奢华娱乐",
-          "星河娱乐",
-          "豪华娱乐",
-          "春风娱乐",
-          "白羊国际",
-          "奔达娱乐",
-          "魂斗娱乐",
-          "帝豪国际",
-          "凯越娱乐",
-          "星宇娱乐",
-          "超越国际",
-          "锦州娱乐",
-          "哈雷娱乐",
-          "公牛娱乐",
-          "铃木娱乐",
-          "爵士娱乐"
-        ],
-        selectedPlatform: "浪花娱乐",
-        banks: [
-          "中信银行",
-          "包商银行",
-          "北京银行",
-          "朝阳银行",
-          "成都银行",
-          "东亚银行",
-          "工商银行",
-          "光大银行",
-          "广州银行",
-          "杭州银行",
-          "华夏银行",
-          "徽商银行",
-          "建设银行",
-          "江苏银行",
-          "交通银行",
-          "锦州银行",
-          "民生银行",
-          "宁波银行",
-          "农业银行",
-          "平安银行",
-          "浦发银行",
-          "上海银行",
-          "兴业银行",
-          "邮政储蓄",
-          "招商银行",
-          "浙商银行",
-          "中国银行",
-          "--",
-        ],
+    <div class="sevePic">
+      <div class="input">
+        <label for="money">金额: </label>
+        <input name="money" type="text" v-model.lazy="drawing" />
+        <button @click="changeOKPay()">切换OKPay</button>
+        <button @click="changeUSDT()">切换USDT</button>
+        <button @click="changeTOPay()">切换TOPay</button>
+      </div>
+      <button class="downloadPic" @click="downloadPic()">保存截图</button>
+    </div>
+    <div class="switch">
+      <h2>{{selectedPlatform}}</h2>
+      <hr />
+      <div>
+        <a href="/wmjt">
+          <button>完美娱乐</button>
+        </a>
+        <a href="/hsss">
+          <button>红色皮肤</button>
+        </a>
+        <a href="/wsss">
+          <button>无双</button>
+        </a>
+        <a href="/thj">
+          <button>土豪金</button>
+        </a>
+        <a href="/hj">
+          <button>红金</button>
+        </a>
+        <button v-for="value in bluePlatform" @click="changePlatform(value)" :key="value">
+          {{value}}
+        </button>
+        <br />
+        <button class="red" v-for="value in redPlatform" @click="changePlatform(value)" :key="value">
+          {{value}}
+        </button>
+      </div>
+    </div>
+  </div>
+</body>
+<script>
+  let vm = new Vue({
+    el: "#app",
+    data: {
+      tableData: [],
+      drawing: "",
+      bg: 1,
+      icon: 1,
+      type: "银行卡",
+      serviceCharge: 0.02,
+      bluePlatform: [
+        "星河娱乐",
+        "春风娱乐",
+        "白羊国际",
+        "奔达娱乐",
+        "魂斗娱乐",
+        "帝豪国际",
+        "凯越娱乐",
+        "星宇娱乐",
+        "超越国际",
+        "锦州娱乐",
+        "哈雷娱乐",
+        "公牛娱乐",
+        "铃木娱乐",
+        "爵士娱乐"
+      ],
+      redPlatform: [
+        "鼎华娱乐"
+      ],
+      selectedPlatform: "鼎华娱乐",
+      banks: [
+        "中信银行",
+        "包商银行",
+        "北京银行",
+        "朝阳银行",
+        "成都银行",
+        "东亚银行",
+        "工商银行",
+        "光大银行",
+        "广州银行",
+        "杭州银行",
+        "华夏银行",
+        "徽商银行",
+        "建设银行",
+        "江苏银行",
+        "交通银行",
+        "锦州银行",
+        "民生银行",
+        "宁波银行",
+        "农业银行",
+        "平安银行",
+        "浦发银行",
+        "上海银行",
+        "兴业银行",
+        "邮政储蓄",
+        "招商银行",
+        "浙商银行",
+        "中国银行",
+        "--",
+      ],
+    },
+    methods: {
+      changeOKPay() {
+        this.icon = 27;
+        this.type = "OKPay";
+        this.serviceCharge = 0.02;
+        console.log(this.tableData);
       },
-      methods: {
-        changeOKPay() {
-          this.icon = 27;
-          this.type = "OKPay";
-          this.serviceCharge = 0.02;
-          console.log(this.tableData);
-        },
-        changeTOPay() {
-          this.icon = 27;
-          this.type = "TOPay";
-          this.serviceCharge = 0.02;
-        },
-        changeUSDT() {
-          this.icon = 27;
-          this.type = "USDT";
-          this.serviceCharge = 0.02;
-        },
-        downloadPic() {
-          html2canvas(document.getElementById("pic")).then(function (canvas) {
-            var imgUri = canvas
-              .toDataURL("image/png")
-              .replace("image/png", "image/octet-stream"); // 获取生成的图片的url
-            var saveLink = document.createElement("a");
-            saveLink.href = imgUri;
-            saveLink.download = "downLoad.png";
-            saveLink.click();
+      changeTOPay() {
+        this.icon = 27;
+        this.type = "TOPay";
+        this.serviceCharge = 0.02;
+      },
+      changeUSDT() {
+        this.icon = 27;
+        this.type = "USDT";
+        this.serviceCharge = 0.02;
+      },
+      downloadPic() {
+        html2canvas(document.getElementById("pic")).then(function (canvas) {
+          var imgUri = canvas
+            .toDataURL("image/png")
+            .replace("image/png", "image/octet-stream"); // 获取生成的图片的url
+          var saveLink = document.createElement("a");
+          saveLink.href = imgUri;
+          saveLink.download = "downLoad.png";
+          saveLink.click();
+        });
+      },
+      changePlatform(value) {
+        this.selectedPlatform = value;
+      },
+    },
+    computed: {
+      appSkin() {
+        let skin
+        this.bluePlatform.includes(this.selectedPlatform) ? skin = 'blue' : ''
+        this.redPlatform.includes(this.selectedPlatform) ? skin = 'red' : ''
+
+        return skin
+      }
+    },
+    watch: {
+      drawing: function (newVal) {
+        // 声明表格变量
+        let tableData = [];
+        // 生成日期时间
+        let nowNum = Date.now();
+        let getDate = new Date(nowNum);
+        let YMD, HM;
+        function setYMDHM() {
+          YMD = getDate
+            .toLocaleDateString("zh-CN", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+            })
+            .replace(/\//g, "-");
+          HM = getDate.toLocaleTimeString("zh-CN", {
+            timeStyle: "short",
+            hour12: false,
           });
-        },
-        changePlatform(value) {
-          this.selectedPlatform = value;
-        },
-      },
-      watch: {
-        drawing: function (newVal) {
-          // 声明表格变量
-          let tableData = [];
-          // 生成日期时间
-          let nowNum = Date.now();
-          let getDate = new Date(nowNum);
-          let YMD, HM;
-          function setYMDHM() {
-            YMD = getDate
-              .toLocaleDateString("zh-CN", {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-              })
-              .replace(/\//g, "-");
-            HM = getDate.toLocaleTimeString("zh-CN", {
-              timeStyle: "short",
-              hour12: false,
-            });
-          }
-          setYMDHM();
-          // 声明并初始化日期字符串
-          let dateStr = `${YMD} ${HM}`;
-          // 声明金额数组变量
-          let drawingArr = [];
-          //处理input字符串转为数组
-          drawingArr = newVal.split("/");
-          // 通过数组逐个计算获得提款额 手续费 到账额
-          for (let i = 0; i < drawingArr.length; i++) {
-            if (i > 0) {
-              nowNum = nowNum - Math.floor(Math.random() * 120000000 + 5000000);
-              getDate = new Date(nowNum);
-              setYMDHM();
-              if (HM.split(":")[0] > 23) {
-                HM = "23:" + HM.split(":")[1];
-              }
-              dateStr = `${YMD} ${HM}`;
-            }
-            tableData.push({
-              date: dateStr,
-              drawing: drawingArr[i],
-            });
-          }
-          this.tableData = tableData;
-        },
-      },
-      mounted() {
-        // 根据参数生成最大最小范围内随机数函数
-        function randomRange(max, min) {
-          let num = Math.floor(Math.random() * (max - min + 1)) + min;
-          return num;
         }
-        // 背景随机
-        this.bg = randomRange(true, false);
-        // 银行ID随机
-        this.icon = randomRange(26, 0);
-        // 创建随机提款金额
-        let randomCont = randomRange(10, 3);
+        setYMDHM();
+        // 声明并初始化日期字符串
+        let dateStr = `${YMD} ${HM}`;
+        // 声明金额数组变量
         let drawingArr = [];
-        for (let i = 0; i < randomCont; i++) {
-          if (randomRange(1, 0)) {
-            drawingArr.push(randomRange(200, 90) * 100);
-          } else {
-            drawingArr.push(randomRange(40, 8) * 1000);
+        //处理input字符串转为数组
+        drawingArr = newVal.split("/");
+        // 通过数组逐个计算获得提款额 手续费 到账额
+        for (let i = 0; i < drawingArr.length; i++) {
+          if (i > 0) {
+            nowNum = nowNum - Math.floor(Math.random() * 120000000 + 5000000);
+            getDate = new Date(nowNum);
+            setYMDHM();
+            if (HM.split(":")[0] > 23) {
+              HM = "23:" + HM.split(":")[1];
+            }
+            dateStr = `${YMD} ${HM}`;
           }
+          tableData.push({
+            date: dateStr,
+            drawing: drawingArr[i],
+          });
         }
-        this.drawing = drawingArr.toString(drawingArr).replace(/,/g, "/");
+        this.tableData = tableData;
       },
-    });
-  </script>
+    },
+    mounted() {
+      // 根据参数生成最大最小范围内随机数函数
+      function randomRange(max, min) {
+        let num = Math.floor(Math.random() * (max - min + 1)) + min;
+        return num;
+      }
+      // 背景随机
+      this.bg = randomRange(true, false);
+      // 银行ID随机
+      this.icon = randomRange(26, 0);
+      // 创建随机提款金额
+      let randomCont = randomRange(10, 3);
+      let drawingArr = [];
+      for (let i = 0; i < randomCont; i++) {
+        if (randomRange(1, 0)) {
+          drawingArr.push(randomRange(200, 90) * 100);
+        } else {
+          drawingArr.push(randomRange(40, 8) * 1000);
+        }
+      }
+      this.drawing = drawingArr.toString(drawingArr).replace(/,/g, "/");
+    },
+  });
+</script>
+
 </html>
