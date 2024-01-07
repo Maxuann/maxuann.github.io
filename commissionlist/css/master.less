@@ -1,0 +1,129 @@
+* {
+  padding: 0;
+  margin: 0;
+  outline: none;
+}
+
+body {
+  font-family: "Microsoft Yahei", Tahoma, Arial, Helvetica, sans-serif;
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+  background-color: #fff;
+  overflow: hidden;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+
+::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  cursor: pointer;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.1);
+  transition: color 0.2s ease;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 10px;
+}
+
+
+#app {
+  width: 100vw;
+  height: 100vh;
+}
+
+.container{
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-direction: column;
+  .box{
+    display: flex;
+    textarea{
+      margin-right: 10px;
+      resize: none;
+      font-size: 20px;
+      color: rgb(137, 137, 137);
+      font-weight: bold;
+      width: 160px;
+      padding: 10px;
+      text-align: center;
+      font-family: "Microsoft Yahei";
+      &::placeholder{
+        color: rgb(189, 189, 189);
+      }
+    }
+  }
+  .platform{
+    margin-top: 20px;
+    button{
+      border: 0;
+      color: #fff;
+      font-size: 16px;
+      font-weight: bold;
+      background-color: rgb(255, 154, 121);
+      border-radius: 5px;
+      padding: 10px;
+      line-height: 1;
+      margin-right: 15px;
+      transition: .2s ease-in-out;
+    }
+    .active{
+      background-color: rgb(255, 79, 52);
+    }
+  }
+}
+
+#savePic{
+  font-size: 0;
+  position: relative;
+  display: inline-block;
+}
+
+.bg{
+  display: block;
+}
+
+.left,.right{
+  position: absolute;
+  text-align: center;
+  top: 133px;
+  left: 457px;
+  color: #fff;
+  font-size: 20px;
+  line-height: 1.49;
+  transform: translateX(-50%);
+}
+
+.right{
+  left: 813px;
+}
+
+.title{
+  position: absolute;
+  top: 26px;
+  left: 63.5%;
+  transform: translateX(-50%);
+  font-size: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  img{
+    height: 47px;
+    margin: 0 1px;
+  }
+}
+
