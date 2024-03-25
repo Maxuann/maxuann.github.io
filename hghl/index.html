@@ -40,25 +40,19 @@
         var currentDate = new Date();
         const month = currentDate.getMonth() + 1;
         const day = currentDate.getDate()
-        console.log(month, day);
-        this.editable = false;
-        setTimeout(() => {
-          let pic = document.getElementById("savePic");
-          pic.style.transform = "scale(1)";
-          html2canvas(pic, {
-            width: 500,
-            scale: 2,
-          }).then(function (canvas) {
-            let imgUri = canvas
-              .toDataURL("image/png")
-              .replace("image/png", "image/octet-stream"); // 获取生成的图片的url
-            let saveLink = document.createElement("a");
-            saveLink.href = imgUri;
-            saveLink.download = `${month}月${day}USDT日汇率.png`;
-            saveLink.click();
-          });
-          pic.removeAttribute("style");
-        }, 10);
+        let pic = document.getElementById("savePic");
+        html2canvas(pic, {
+          width: 500,
+          scale: 2,
+        }).then(function (canvas) {
+          let imgUri = canvas
+            .toDataURL("image/png")
+            .replace("image/png", "image/octet-stream"); // 获取生成的图片的url
+          let saveLink = document.createElement("a");
+          saveLink.href = imgUri;
+          saveLink.download = `${month}月${day}USDT日汇率.png`;
+          saveLink.click();
+        });
       },
     },
     watch: {
