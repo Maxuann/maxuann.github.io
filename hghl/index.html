@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="img/favicon.ico" sizes="32x32" />
+  <link rel="stylesheet" href="css/master.css" />
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.13/dist/vue.min.js"></script>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <title>皇冠USDT汇率工具</title>
+</head>
+
+<body>
+  <div id="app">
+    <div class="container">
+      <div id="savePic">
+        <img class="bg" src="./img/bg.svg" alt="">
+        <img class="icon" src="./img/icon.png" alt="">
+        <div class="date">
+          <p v-for="item in resultArr">{{item}}</p>
+        </div>
+      </div>
+      <div class="io">
+        <textarea v-model="idDate" placeholder="在此处逐个输入汇率"></textarea>
+        <button @click="downloadPic()">保存为图片</button>
+      </div>
+    </div>
+  </div>
+</body>
+<script>
+  let vm = new Vue({
+    el: "#app",
+    data: {
+      idDate: [],
+      resultArr: []
+    },
+    methods: {
+      downloadPic() {
+        var currentDate = new Date();
+        const month = currentDate.getMonth() + 1;
+        const day = currentDate.getDate()
+        console.log(month, day);
+        this.editable = false;
+        setTimeout(() => {
+          let pic = document.getElementById("savePic");
+          pic.style.transform = "scale(1)";
+          html2canvas(pic, {
+            width: 500,
+            scale: 3,
+          }).then(function (canvas) {
+            let imgUri = canvas
+              .toDataURL("image/png")
+              .replace("image/png", "image/octet-stream"); // 获取生成的图片的url
+            let saveLink = document.createElement("a");
+            saveLink.href = imgUri;
+            saveLink.download = `${month}月${day}USDT日汇率.png`;
+            saveLink.click();
+          });
+          pic.removeAttribute("style");
+        }, 10);
+      },
+    },
+    watch: {
+      idDate(newVal) {
+        // 将字符串按换行符分割成数组
+        const idArray = newVal.split('\n');
+        const arr = [];
+        for (let i = 0; i < idArray.length; i++) {
+          // 去除结尾的换行符
+          const id = idArray[i].trim();
+          arr.push(id);
+        }
+        console.log(arr);
+        this.resultArr = arr
+      }
+    },
+    mounted() {
+    }
+  });
+</script>
+
+</html>
