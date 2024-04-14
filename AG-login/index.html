@@ -83,11 +83,16 @@
       }
     },
     mounted() {
-      // 获取.login-page元素的引用
-      const loginPage = this.$refs.loginPage;
-
-      // 添加点击事件监听器
-      loginPage.addEventListener('click', this.playVideoAndAudio);
+      // safari浏览器中播放背景视频会弹出小窗导致页面显示异常，所以禁用
+      const userAgent = navigator.userAgent;
+      // 判断是否在 Safari 浏览器中
+      const isSafari = userAgent.indexOf('Safari') !== -1 && userAgent.indexOf('Version') !== -1;
+      // 在 Safari 浏览器中不执行事件监听器
+      if (!isSafari) {
+        // 获取.login-page元素的引用
+        const loginPage = this.$refs.loginPage;
+        loginPage.addEventListener('click', this.playVideoAndAudio);
+      }
     },
   });
 </script>
