@@ -37,6 +37,7 @@
         </button>
       </div>
     </div>
+    <video id="bgv" autoplay loop poster="./assets/video-pre.jpg" src="./assets/bg.mp4"></video>
     <div class="download">
       <img src="./assets/qrcode.png" alt="">
       <button>
@@ -47,7 +48,6 @@
         </div>
       </button>
     </div>
-    <video id="bgv" autoplay loop poster="./assets/video-pre.jpg" src="./assets/bg.mp4"></video>
   </div>
 </template>
 
@@ -88,6 +88,10 @@ export default {
 * {
   padding: 0;
   margin: 0;
+}
+
+body {
+  background: #000;
 }
 
 .login-page {
@@ -228,8 +232,8 @@ button {
     margin: 0.6rem 0 2rem;
   }
 
-  &:hover~.bgv {
-    filter: brightness(0.4);
+  &:hover~#bgv {
+    filter: brightness(0.5);
   }
 }
 
@@ -488,5 +492,4 @@ button {
       }
     }
   }
-}
-</style>
+}</style>
