@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="assets/favicon.ico" sizes="32x32" />
+  <link rel="stylesheet" href="css/master.css" />
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.13/dist/vue.min.js"></script>
+  <title>AG登录</title>
+</head>
+
+<body>
+  <div id="app">
+    <div class="page login-page" ref="loginPage">
+      <audio id="bgm" autoplay loop src="./assets/bgm.mp3"></audio>
+      <img class="rt-light" src="./assets/light.jpg" alt="">
+      <img class="lb-light" src="./assets/lights.jpg" alt="">
+      <div class="service">
+        <img src="./assets/coner.png" alt="">
+        <button>
+          <img src="./assets/service.svg" alt="">
+          <p>在线客服</p>
+        </button>
+      </div>
+      <div class="main">
+        <img class="logo" src="./assets/logo.svg">
+        <p class="slogan">VIP系统 特权专享 私人桌功能 强势推出!</p>
+        <div class="login_form">
+          <div>
+            <img src="./assets/username.svg">
+            <input type="text" v-model="formData.username" placeholder="输入用户名" />
+            <transition>
+              <!-- <p class="tip">您输入的用户名和密码不正确</p> -->
+            </transition>
+          </div>
+          <div>
+            <img src="./assets/password.svg">
+            <input :type="isPasswordIsShow?'text':'password'" placeholder="输入密码" v-model="formData.password" />
+            <div class="showPassword" @click="isPasswordIsShow = !isPasswordIsShow">
+              <img v-if="isPasswordIsShow" src="./assets/hidePassword.svg" alt="">
+              <img v-else src="./assets/showPassword.svg" alt="">
+            </div>
+            <transition>
+              <p class="tip">您输入的用户名和密码不正确</p>
+            </transition>
+          </div>
+          <button @click="showPasswordHandler()">
+            <p>登入</p>
+          </button>
+        </div>
+      </div>
+      <div class="download">
+        <img src="./assets/qrcode.png" alt="">
+        <button>
+          <img src="./assets/download.svg" alt="">
+          <div>
+            <h4>立即下载APP</h4>
+            <p>随时随地 无线投注</p>
+          </div>
+        </button>
+      </div>
+      <video id="bgv" autoplay loop poster="./assets/video-pre.jpg" src="./assets/bg.mp4"></video>
+    </div>
+  </div>
+</body>
+<script>
+  let vm = new Vue({
+    el: "#app",
+    data: {
+      isPasswordIsShow: false,
+      formData: {
+        username: "",
+        password: "",
+      },
+    },
+    methods: {
+      playVideoAndAudio() {
+        // 播放视频
+        document.getElementById('bgv').play();
+        // 播放音乐
+        document.getElementById('bgm').play();
+      }
+    },
+    mounted() {
+      // 获取.login-page元素的引用
+      const loginPage = this.$refs.loginPage;
+
+      // 添加点击事件监听器
+      loginPage.addEventListener('click', this.playVideoAndAudio);
+    },
+  });
+</script>
+
+</html>
