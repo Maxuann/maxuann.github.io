@@ -93,6 +93,12 @@
         const loginPage = this.$refs.loginPage;
         loginPage.addEventListener('click', this.playVideoAndAudio);
       }
+      // 禁止双指捏合手势放大页面
+      document.addEventListener('touchstart', function (event) {
+        if (event.touches.length > 1) {
+          event.preventDefault();
+        }
+      }, { passive: false });
     },
   });
 </script>
