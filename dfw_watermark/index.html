@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -50,14 +51,25 @@
           const content = document.getElementById('content');
           const children = content.children;
 
+          // 获取当前时间的Date对象以标注日期
+          let now = new Date();
+          // 获取各个时间部分
+          let month = (now.getMonth() + 1).toString().padStart(2, '0'); // 月份从0开始，需要加1
+          let day = now.getDate().toString().padStart(2, '0');
+          let hours = now.getHours().toString().padStart(2, '0');
+          let minutes = now.getMinutes().toString().padStart(2, '0');
+          let seconds = now.getSeconds().toString().padStart(2, '0');
+          let currentTime = `${month}/${day} ${hours}:${minutes}:${seconds}`;
+
+          let count = 1
           Array.from(children).forEach(child => {
             html2canvas(child).then(canvas => {
               const imgData = canvas.toDataURL('image/png');
               const link = document.createElement('a');
               link.href = imgData;
-              link.download = '水印.png';
+              link.download = currentTime + '-' + count + '.png';
               link.click();
-              console.log('保存');
+              count++
             });
           });
         }, 500);
