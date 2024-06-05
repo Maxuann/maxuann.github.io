@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <link rel="stylesheet" href="index.css">
+  <title>TB账单生成</title>
+</head>
+
+<body>
+  <div id="app">
+    <div id="bill">
+      <img class="watermark" src="watermark.png" alt="">
+      <div class="header">
+        <img src="INVOICE.svg" alt="" class="title">
+        <div class="info">
+          <p>{{lang[langShow].info[0]+"："+customer}}</p>
+          <p>{{lang[langShow].info[1]+"："+customerID}}</p>
+          <p>{{lang[langShow].info[2]+'：'+ date}}</p>
+        </div>
+      </div>
+      <table>
+        <tr>
+          <th v-for="item in lang[langShow].table" v-html="item" key="item"></th>
+        </tr>
+        <tr v-if="typeSelected.includes(0)">
+          <td>{{lang[langShow].gameName[0]}}</td>
+          <td>{{parseFloat(fairGameData.bet).toFixed(2)}}</td>
+          <td>{{parseFloat(fairGameData.payout).toFixed(2)}}</td>
+          <td>{{parseFloat(fairGameProfit).toFixed(2)}}</td>
+          <td>{{fairGameData.rate+"%"}}</td>
+          <td>{{parseFloat(fairGameProfit * fairGameData.rate/100).toFixed(2)}}</td>
+          <td rowspan="2" class="total">{{amount}}</td>
+          <td rowspan="2" class="total">{{currency.name}}→USDT<br>{{currency.rate}}</td>
+          <td rowspan="2" class="total">{{settlement}}</td>
+        </tr>
+        <tr v-if="typeSelected.includes(1)">
+          <td>{{lang[langShow].gameName[1]}}</td>
+          <td>{{parseFloat(slotGameData.bet).toFixed(2)}}</td>
+          <td>{{parseFloat(slotGameData.payout).toFixed(2)}}</td>
+          <td>{{parseFloat(slotGameProfit).toFixed(2)}}</td>
+          <td>{{slotGameData.rate+"%"}}</td>
+          <td>{{parseFloat(slotGameProfit * slotGameData.rate/100).toFixed(2)}}</td>
+          <td v-if="!typeSelected.includes(0)" rowspan="2" class="total">{{amount}}</td>
+          <td v-if="!typeSelected.includes(0)" rowspan="2" class="total">{{currency.name}}→USDT<br>{{currency.rate}}
+          </td>
+          <td v-if="!typeSelected.includes(0)" rowspan="2" class="total">{{settlement}}</td>
+        </tr>
+      </table>
+      <div class="settlement">
+        <h2>{{lang[langShow].total+'：'+ settlement +'USDT'}}</h2>
+      </div>
+      <div class="note">
+        <p>{{lang[langShow].note[0]}}</p>
+        <p v-html="lang[langShow].note[1]"></p>
+      </div>
+      <img class="logo" src="logo.svg" alt="">
+    </div>
+    <div class="easy">
+      <button @click="langSwitch()">切换语言</button>
+      <div>
+        <div>
+          <input ref="customerInput" type="text" placeholder="客户名称" v-model="customer">
+          <input type="text" placeholder="商户ID" v-model="customerID">
+        </div>
+        <label for="typeSelect">类型选择 - </label>
+        <div v-if="typeSelected.includes(0)">
+          <input type="checkbox" id="fair" name="typeSelect" value='0' v-model="typeSelected" checked>
+          <label for="fair">公平游戏</label>
+          <input v-model="fairGameData.bet" type="number" placeholder="投注额">
+          <input v-model="fairGameData.payout" type="number" placeholder="派彩额">
+          <input v-model="fairGameData.rate" type="number" placeholder="条件">
+        </div>
+        <div v-if="typeSelected.includes(1)">
+          <input type="checkbox" id="slot" name="typeSelect" value="1" v-model="typeSelected" ckecked>
+          <label for="slot">电子游戏</label>
+          <input v-model="slotGameData.bet" type="number" placeholder="投注额">
+          <input v-model="slotGameData.payout" type="number" placeholder="派彩额">
+          <input v-model="slotGameData.rate" type="number" placeholder="条件">
+        </div>
+        <div>
+          <input type="text" placeholder="币种" placeholder="币种" v-model="currency.name" @input="currencyNameInput"
+            maxlength="4">
+          <input type="number" placeholder="汇率" placeholder="汇率" v-model="currency.rate">
+        </div>
+      </div>
+      <button @click="saveBill()">保存账单</button>
+    </div>
+    <div class="howtouse">
+      <h4>使用说明：</h4>
+      <p>
+        1.下方输入客户信息的投注额、派彩额、条件、汇率单位、汇率后自动计算结果。<br>
+        2.类型默认两个都选择，取消勾选，则会消失，刷新页面后重置。<br>
+        3.左侧按钮切换显示[中英]/[全英文]。<br>
+        4.打开页面、刷新页面、保存账单操作都可以将光标激活到客户输入口。<br>
+        5.一个输入完成后Tab切换到下一个输入，商户ID输入后Tab焦点会到公平游戏复选框上，空格会取消选择这个类型并消失，同样公平游戏的条件输入框Tab可以空格取消显示电子游戏。<br>
+        6.输入完成后检查计算结果准确性，回车将账单保存到电脑，并同时清空客户、商户ID、公平游戏、电子游戏投注额数据，并获取到客户名称输入框，以便继续输入下一个客户。
+      </p>
+    </div>
+    <!-- <div class="control">
+      <select name="currency" id="currency">
+        <option>金利国际</option>
+      </select>
+      <div>
+        <button>+</button>
+        <button>-</button>
+        <button>×</button>
+      </div>
+    </div>
+    <div class="addCustomer">
+      <div>
+        <label for="customer">客户</label>
+        <input type="text" id="customer" name="customer">
+      </div>
+      <div>
+        <label for="customerID">商户ID</label>
+        <input type="text" id="customerID" name="customerID">
+      </div>
+      <div>
+        <label for="type">类型选择</label>
+        <input type="checkbox" id="fairgame" name="type">
+        <label for="fairgame">TB公平游戏</label>
+        <label for="fairgame_rate">-条件</label>
+        <input type="text" id="fairgame_rate">
+        <input type="checkbox" id="slotgame" name="type">
+        <label for="slotgame">TB电子游戏</label>
+        <label for="slotgame_rate">-条件</label>
+        <input type="text" id="slotgame_rate">
+      </div>
+      <div>
+        <label for="currencySelect">币种</label>
+        <select name="currencySelect" id="currencySelect">
+          <option v-for="item in currencySelect" :value="item[1]">{{item[0]}}</option>
+        </select>
+      </div>
+    </div> -->
+  </div>
+</body>
+
+<script>
+  new Vue({
+    el: '#app',
+    data: {
+      date: '',
+      typeSelected: [0, 1],
+      customer: '',
+      customerID: '',
+      fairGameData: {
+      },
+      slotGameData: {
+      },
+      currency: {
+      },
+      currencySelect: [
+        ['人民币', 'CNY'],
+        ['美元', 'USD'],
+        ['英镑', 'GBP'],
+        ['欧元', 'EUR'],
+        ['韩元（千）', 'KRW'],
+        ['日元', 'JPY'],
+        ['港币', 'HKD'],
+        ['加元', 'CAD'],
+        ['澳元', 'AUD'],
+        ['印度卢比', 'INR'],
+        ['越南盾（千盾）', 'VND'],
+        ['马来西亚令吉', 'MYR'],
+        ['印尼盾（千盾）', 'IDR'],
+        ['菲律宾PHP', 'PHP'],
+        ['泰国泰铢', 'THB'],
+        ['巴西雷亚尔', 'BRL'],
+        ['缅甸元（千元）', 'MMK'],
+        ['孟加拉塔卡', 'BDT'],
+        ['巴基斯坦卢比', 'PKR'],
+        ['墨西哥比索', 'MXN'],
+        ['哥伦比亚比索（千元）', 'COP'],
+        ['尼日利亚奈拉', 'NGN'],
+        ['埃及镑', 'EGP'],
+        ['TRX', 'TRX'],
+        ['USDT', 'USDT']
+      ],
+      langShow: 0,
+      lang: [{
+        info: ['Customer/客户', 'CustomerID/商户ID', 'Data/日期'],
+        table: ['Type<br>类型', 'Bet<br>投注额', 'Payout<br>派彩额', 'Profit<br>盈利', 'Rate<br>条件', 'Subtotal<br>共计', 'Amount<br>实收', 'Exchange Rate<br>汇率换算', 'Settlement<br>结算'],
+        gameName: ['TB公平游戏', 'TB电子游戏'],
+        total: '总计',
+        note: ['注意', '1、默认以USDT作为结算货币，转账前请仔细核对地址。<br>2、自发布账单时间起，请在3日内完成支付。如果超时未支付我们可能关闭您的线路。<br>3、如我方更换收款地址，需经3人以上确认，如我方未确认，贵方直接转账损失概不负责。']
+      },
+      {
+        info: ['Customer', 'CustomerID', 'Data'],
+        table: ['Type', 'Bet', 'Payout', 'Profit', 'Rate', 'Subtotal', 'Amount', 'Exchange Rate', 'Settlement'],
+        gameName: ['TB FairGame', 'TB SlotGame'],
+        total: 'Total',
+        note: ['Important Notes', '1. Default Settlement Currency: The default currency for settlement is USDT. Please double-check the address before initiating any transfers.<br>2. Payment Deadline: Please complete the payment within 3 days from the billing date. If payment is not made within this timeframe, we may suspend your account.<br>3. Address Change Confirmation: Any changes to our payment address must be confirmed by at least three authorized individuals from our side. If the address change is not confirmed by us, we are not responsible for any losses incurred due to direct transfers to an unconfirmed address.']
+      }
+      ]
+    },
+    computed: {
+      fairGameProfit() {
+        let profit = this.fairGameData.bet - this.fairGameData.payout
+        return profit
+      },
+      slotGameProfit() {
+        let profit = this.slotGameData.bet - this.slotGameData.payout
+        parseFloat(profit.toFixed(2));
+        return profit
+      },
+      amount() {
+        let amount, fairamount, slotamount
+
+        fairamount = parseFloat((this.fairGameProfit * this.fairGameData.rate / 100).toFixed(2))
+        console.log(fairamount);
+        slotamount = parseFloat((this.slotGameProfit * this.slotGameData.rate / 100).toFixed(2))
+        console.log(slotamount);
+        if (this.typeSelected.length == 2) {
+          amount = parseFloat((fairamount + slotamount).toFixed(2))
+        } else if (this.typeSelected[0] == 0) {
+          amount = fairamount
+        } else if (this.typeSelected[0] == 1) {
+          amount = slotamount
+        }
+        return amount
+      },
+      settlement() {
+        let settle = parseFloat(this.amount / this.currency.rate).toFixed(2)
+        return settle
+      }
+    },
+    methods: {
+      // 精确到小数点后两位
+
+      currencyNameInput() {
+        this.currency.name = this.currency.name.toUpperCase();
+      },
+      langSwitch() {
+        this.langShow ? this.langShow = 0 : this.langShow = 1
+      },
+      saveBill() {
+        const pic = document.getElementById('bill');
+
+        html2canvas(pic, {
+          scale: 5,
+        }).then(function (canvas) {
+          let imgUri = canvas
+            .toDataURL("image/png")
+            .replace("image/png", "image/octet-stream"); // 获取生成的图片的url
+          let saveLink = document.createElement("a");
+          saveLink.href = imgUri;
+          saveLink.download = `${customer} - ${date}.png`;
+          saveLink.click();
+        });
+        this.customer = ''
+        this.customerID = ''
+        this.fairGameData = {}
+        this.slotGameData = {}
+        //自动获取客户输入框焦点
+        this.$refs.customerInput.focus();
+      },
+      //键盘监听回车保存账单
+      handleKeyDown(event) {
+        // 检查是否按下了回车键
+        if (event.keyCode === 13) {
+          // 调用 saveBill() 方法
+          this.saveBill();
+        }
+      },
+      getDate() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = (now.getMonth() + 1).toString().padStart(2, '0');
+
+        const startDate = `${year}.${month}.01`;
+
+        const endDate = new Date(year, now.getMonth() + 1, 0).getDate();
+        const endFormattedDate = `${year}.${month}.${endDate.toString().padStart(2, '0')}`;
+
+        this.date = `${startDate} ~ ${endFormattedDate}`;
+      }
+    },
+    watch: {
+
+    },
+    mounted() {
+      //获取当前日期
+      this.getDate()
+      //自动获取客户输入框焦点
+      this.$refs.customerInput.focus();
+      //回车保存账单
+      document.addEventListener('keydown', this.handleKeyDown);
+    },
+    beforeDestroy() {
+      // 组件销毁前移除事件监听
+      document.removeEventListener('keydown', this.handleKeyDown);
+    },
+  });
+
+</script>
+
+</html>
