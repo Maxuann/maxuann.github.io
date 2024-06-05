@@ -231,8 +231,6 @@
       }
     },
     methods: {
-      // 精确到小数点后两位
-
       currencyNameInput() {
         this.currency.name = this.currency.name.toUpperCase();
       },
@@ -241,7 +239,7 @@
       },
       saveBill() {
         const pic = document.getElementById('bill');
-
+        const picName = `${this.customer} - ${this.date}.png`
         html2canvas(pic, {
           scale: 5,
         }).then(function (canvas) {
@@ -250,15 +248,18 @@
             .replace("image/png", "image/octet-stream"); // 获取生成的图片的url
           let saveLink = document.createElement("a");
           saveLink.href = imgUri;
-          saveLink.download = `${customer} - ${date}.png`;
+          saveLink.download = picName;
           saveLink.click();
         });
-        this.customer = ''
-        this.customerID = ''
-        this.fairGameData = {}
-        this.slotGameData = {}
-        //自动获取客户输入框焦点
-        this.$refs.customerInput.focus();
+        setTimeout(() => {
+          this.customer = ''
+          this.customerID = ''
+          this.fairGameData = {}
+          this.slotGameData = {}
+          this.typeSelected = [0, 1]
+          //自动获取客户输入框焦点
+          this.$refs.customerInput.focus();
+        }, 300);
       },
       //键盘监听回车保存账单
       handleKeyDown(event) {
