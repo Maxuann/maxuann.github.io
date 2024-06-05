@@ -28,23 +28,23 @@
         </tr>
         <tr v-if="typeSelected.includes(0)">
           <td>{{lang[langShow].gameName[0]}}</td>
-          <td>{{parseFloat(fairGameData.bet).toFixed(2)}}</td>
-          <td>{{parseFloat(fairGameData.payout).toFixed(2)}}</td>
-          <td>{{parseFloat(fairGameProfit).toFixed(2)}}</td>
+          <td>{{parseFloat(fairGameData.bet).toFixed(2)+showK}}</td>
+          <td>{{parseFloat(fairGameData.payout).toFixed(2)+showK}}</td>
+          <td>{{parseFloat(fairGameProfit).toFixed(2)+showK}}</td>
           <td>{{fairGameData.rate+"%"}}</td>
-          <td>{{parseFloat(fairGameProfit * fairGameData.rate/100).toFixed(2)}}</td>
-          <td rowspan="2" class="total">{{amount}}</td>
+          <td>{{parseFloat(fairGameProfit * fairGameData.rate/100).toFixed(2)+showK}}</td>
+          <td rowspan="2" class="total">{{amount+showK}}</td>
           <td rowspan="2" class="total">{{currency.name}}→USDT<br>{{currency.rate}}</td>
           <td rowspan="2" class="total">{{settlement}}</td>
         </tr>
         <tr v-if="typeSelected.includes(1)">
           <td>{{lang[langShow].gameName[1]}}</td>
-          <td>{{parseFloat(slotGameData.bet).toFixed(2)}}</td>
-          <td>{{parseFloat(slotGameData.payout).toFixed(2)}}</td>
-          <td>{{parseFloat(slotGameProfit).toFixed(2)}}</td>
+          <td>{{parseFloat(slotGameData.bet).toFixed(2)+showK}}</td>
+          <td>{{parseFloat(slotGameData.payout).toFixed(2)+showK}}</td>
+          <td>{{parseFloat(slotGameProfit).toFixed(2)+showK}}</td>
           <td>{{slotGameData.rate+"%"}}</td>
-          <td>{{parseFloat(slotGameProfit * slotGameData.rate/100).toFixed(2)}}</td>
-          <td v-if="!typeSelected.includes(0)" rowspan="2" class="total">{{amount}}</td>
+          <td>{{parseFloat(slotGameProfit * slotGameData.rate/100).toFixed(2)+showK}}</td>
+          <td v-if="!typeSelected.includes(0)" rowspan="2" class="total">{{amount+showK}}</td>
           <td v-if="!typeSelected.includes(0)" rowspan="2" class="total">{{currency.name}}→USDT<br>{{currency.rate}}
           </td>
           <td v-if="!typeSelected.includes(0)" rowspan="2" class="total">{{settlement}}</td>
@@ -60,7 +60,10 @@
       <img class="logo" src="logo.svg" alt="">
     </div>
     <div class="easy">
-      <button @click="langSwitch()">切换语言</button>
+      <div>
+        <button @click="langSwitch()">切换语言</button>
+        <button @click="showKhandler()" :class="{'active':showK == 'k'}">显示k</button>
+      </div>
       <div>
         <div>
           <input ref="customerInput" type="text" placeholder="客户名称" v-model="customer">
@@ -149,6 +152,7 @@
       typeSelected: [0, 1],
       customer: '',
       customerID: '',
+      showK: 'k',
       fairGameData: {
       },
       slotGameData: {
@@ -231,6 +235,9 @@
       }
     },
     methods: {
+      showKhandler() {
+        this.showK == 'k' ? this.showK = '' : this.showK = 'k'
+      },
       currencyNameInput() {
         this.currency.name = this.currency.name.toUpperCase();
       },
