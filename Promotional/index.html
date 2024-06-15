@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip"></script>
+  <script src="https://cdn.jsdelivr.net/npm/file-saver"></script>
+  <link rel="stylesheet" href="index.css">
+  <title>推广图工具</title>
+</head>
+
+<body>
+  <div id="app">
+    <div id="pic">
+      <img id="bg" :src="`img/pic (${picBg}).jpg`" alt="">
+      <div>
+        <h1 :style="`font-size:${titleSize}px`">{{title}}</h1>
+        <h3 :style="`font-size:${textareaSize}px`" v-html="formattedTextarea"></h3>
+      </div>
+    </div>
+    <div class="inputBox">
+      <input class="titleInput" type="text" v-model="title" placeholder="在这里输入标题">
+      <div class="rangeSelect">
+        <label for="titleRange">{{'字号-'+titleSize}}</label>
+        <input type="range" id="titleRange" min="20" max="100" v-model="titleSize">
+      </div>
+      <textarea name="" id="" cols="30" rows="5" v-model="textarea" placeholder="这里输入活动内容"></textarea>
+      <div class="rangeSelect">
+        <label for="textareaRange">{{'字号-'+textareaSize}}</label>
+        <input type="range" id="textareaRange" min="20" max="100" v-model="textareaSize">
+      </div>
+      <div class="rangeSelect">
+        <label for="picRange">{{generateCount+'张'}}</label>
+        <input type="range" id="picRange" min="10" max="50" step="5" v-model="generateCount">
+      </div>
+      <button id="pack2download" @click="downloadZip()">打包导出</button>
+    </div>
+  </div>
+</body>
+<script>
+  new Vue({
+    el: '#app',
+    data: {
+      title: '',
+      titleSize: 50,
+      textarea: '',
+      textareaSize: 37,
+      generateCount: 10,
+      picCount: 171,
+      randomArray: [],
+      picBg: 1,
+    },
+    methods: {
+      // 生成图片数量的随机数组
+      generateRandomArray() {
+
+        // 生成一个从1到picCount的数组
+        const array = Array.from({ length: this.picCount }, (v, k) => k + 1);
+
+        // 洗牌算法 (Fisher-Yates)
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+
+        // 取前generateCount个元素
+        this.randomArray = array.slice(0, this.generateCount);
+      },
+      async downloadZip() {
+        const zip = new JSZip();
+        const picElement = document.getElementById('pic');
+        const bgElement = document.getElementById('bg');
+        const width = picElement.offsetWidth - 1;
+        const height = picElement.offsetHeight - 1;
+
+
+        for (let i = 0; i < this.randomArray.length; i++) {
+          const bgIndex = this.randomArray[i];
+          this.picBg = this.randomArray[i];
+          // 等待图片加载完成
+          await this.imageLoaded(bgElement);
+          const canvas = await html2canvas(picElement, {
+            width: width,
+            height: height
+          });
+          const dataUrl = canvas.toDataURL('image/png');
+          const imgData = dataUrl.split(',')[1];
+          zip.file(`pic${bgIndex}.png`, imgData, { base64: true });
+        }
+
+        zip.generateAsync({ type: 'blob' }).then(function (content) {
+          saveAs(content, '推广图.zip');
+        });
+      },
+      imageLoaded(element) {
+        return new Promise((resolve) => {
+          const img = new Image();
+
+          img.src = element.src;
+          console.log('这里');
+          img.onload = resolve;
+        });
+      }
+    },
+    computed: {
+      // 格式化textarea内容以实现换行
+      formattedTextarea() {
+        return this.textarea.replace(/\n/g, '<br>');
+      }
+    },
+    watch: {
+      generateCount(newVal) {
+        this.generateRandomArray()
+        this.picBg = this.randomArray[0]
+      }
+    },
+    mounted() {
+      // 初始化生成数组
+      this.generateRandomArray()
+      this.picBg = this.randomArray[0]
+    }
+  });
+
+</script>
+
+</html>

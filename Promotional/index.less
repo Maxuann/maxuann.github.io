@@ -1,0 +1,152 @@
+*{
+  margin: 0;
+  padding: 0;
+}
+
+@blue: #44bbfa;
+.flex{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#app{
+  .flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+
+button{
+  padding: 10px 20px;
+  color: #fff;
+  font-weight: bold; 
+  border-radius: 5px;
+  background-color: @blue;
+  border: none;
+  outline: none;
+  transition: transform 0.3s ease-in-out;
+  &:hover{
+    transform: translateY( -5px );
+  }
+}
+
+#pic{
+  position: relative;
+  overflow: hidden;
+  margin-top: 20px;
+  min-width: 300px;
+  img{
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 100%;
+  }
+  div{
+    position: relative;
+    z-index: 10;
+    padding: 30px 40px 40px;
+    color: #fff;
+    h1{
+      font-size: 50px;
+      text-shadow: 0 0 40px rgba(0, 0, 0, 0.7);
+    }
+    h3{
+      font-size: 37px;
+      margin-top: 10px;
+      text-shadow: 0 0 40px rgba(0, 0, 0, 0.7);
+      line-height: 1.2;
+    }
+  }
+}
+
+.inputStyle{
+  text-align: center;
+  padding: 7px;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 5px;
+  background-color: rgba(0, 0, 0, 0.1);
+  &:focus{
+    outline: 1px solid @blue;
+  }
+}
+
+.inputBox{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  >*{
+    margin: 10px 0;
+    width: 300px;
+  }
+  .titleInput{
+    .inputStyle
+  }
+  textarea{
+    resize: none;
+    text-align: center;
+    .inputStyle;
+  }
+  .rangeSelect{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    label{
+      white-space: nowrap;
+      margin-right: 10px;
+    }
+    input{
+      width: 100%;
+    }
+  }
+
+}
+
+
+/* General styling for the range input */
+input[type="range"] {
+  -webkit-appearance: none; /* Remove default appearance */
+  width: 100%; /* Full width */
+  margin: 10px 0; /* Some margin */
+}
+
+/* Remove default margins and padding to allow full range */
+input[type="range"]::-webkit-slider-runnable-track {
+  -webkit-appearance: none;
+  height: 8px; /* Track height */
+  background: #ddd; /* Track color */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Remove default appearance */
+  width: 20px; /* Thumb width */
+  height: 20px; /* Thumb height */
+  background: @blue; /* Thumb color */
+  border-radius: 50%; /* Round thumb */
+  cursor: pointer;
+  margin-top: -6px; /* Center the thumb with the track */
+}
+
+input[type="range"]::-ms-track {
+  width: 100%;
+  height: 8px; /* Track height */
+  background: transparent; /* Use a transparent background */
+  border-color: transparent;
+  border-width: 6px 0;
+  color: transparent;
+  cursor: pointer;
+}
+
+input[type="range"]::-ms-thumb {
+  width: 20px; /* Thumb width */
+  height: 20px; /* Thumb height */
+  background: @blue; /* Thumb color */
+  border-radius: 50%; /* Round thumb */
+  cursor: pointer;
+}
