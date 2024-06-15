@@ -86,9 +86,9 @@
             width: width,
             height: height
           });
-          const dataUrl = canvas.toDataURL('image/png');
+          const dataUrl = canvas.toDataURL('image/jepg');
           const imgData = dataUrl.split(',')[1];
-          zip.file(`pic${bgIndex}.png`, imgData, { base64: true });
+          zip.file(`pic${bgIndex}.jpg`, imgData, { base64: true });
         }
 
         zip.generateAsync({ type: 'blob' }).then(function (content) {
