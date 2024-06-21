@@ -68,7 +68,7 @@
           let seconds = now.getSeconds().toString().padStart(2, '0');
           let currentTime = `${month}/${day} ${hours}:${minutes}:${seconds}`;
           html2canvas(content, {
-            scale: 2.7
+            scale: 3
           }).then(canvas => {
             const imgData = canvas.toDataURL('image/jpeg', 0.95);
             const link = document.createElement('a');
