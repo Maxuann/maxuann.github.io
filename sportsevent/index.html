@@ -57,6 +57,9 @@
         setTimeout(() => {
           // 将每个content下的成员保存到本地
           const content = document.getElementById('content');
+          // 去除白边
+          const width = content.offsetWidth - 1;
+          const height = content.offsetHeight - 1;
 
           // 获取当前时间的Date对象以标注日期
           let now = new Date();
@@ -67,7 +70,10 @@
           let minutes = now.getMinutes().toString().padStart(2, '0');
           let seconds = now.getSeconds().toString().padStart(2, '0');
           let currentTime = `${month}/${day} ${hours}:${minutes}:${seconds}`;
+
           html2canvas(content, {
+            width: width,
+            height: height,
             scale: 3
           }).then(canvas => {
             const imgData = canvas.toDataURL('image/jpeg', 0.95);
