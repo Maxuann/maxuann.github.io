@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <link rel="stylesheet" href="index.css">
+  <title>体育赛事工具</title>
+</head>
+
+<body>
+  <div id="app">
+    <div class="top">
+      <button class="platfromSelect" @mouseover="clearData()">
+        <div class="logo">
+          <img @click="selected = index" v-for="(item, index) in platfromList" :src="`img/${platfromList[index]}.png`">
+        </div>
+        <p>{{platfromList[selected]}}</p>
+      </button>
+      <input type="file" id="fileInput" accept="image/*">
+    </div>
+    <div id="content">
+      <img :src="`img/${platfromList[selected]}_header.jpg`">
+      <img v-for="item in images" :src="item.currentSrc" alt="">
+    </div>
+  </div>
+</body>
+<script>
+  new Vue({
+    el: '#app',
+    data: {
+      images: [],
+      platfromList: [
+        '大富翁'
+      ],
+      selected: 0
+    },
+    methods: {
+      handleFileUpload(event) {
+        // 每次上传前清空上次文件
+        this.images = []
+        //将每个文件推入images数组
+        const files = event.target.files;
+        for (let i = 0; i < files.length; i++) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = () => {
+              this.images.push(img);
+            };
+          };
+          reader.readAsDataURL(files[i]);
+        }
+        setTimeout(() => {
+          // 将每个content下的成员保存到本地
+          const content = document.getElementById('content');
+
+          // 获取当前时间的Date对象以标注日期
+          let now = new Date();
+          // 获取各个时间部分
+          let month = (now.getMonth() + 1).toString().padStart(2, '0'); // 月份从0开始，需要加1
+          let day = now.getDate().toString().padStart(2, '0');
+          let hours = now.getHours().toString().padStart(2, '0');
+          let minutes = now.getMinutes().toString().padStart(2, '0');
+          let seconds = now.getSeconds().toString().padStart(2, '0');
+          let currentTime = `${month}/${day} ${hours}:${minutes}:${seconds}`;
+          html2canvas(content, {
+            scale: 2.7
+          }).then(canvas => {
+            const imgData = canvas.toDataURL('image/jpeg', 0.95);
+            const link = document.createElement('a');
+            link.href = imgData;
+            link.download = currentTime + '.jpg';
+            link.click();
+          });
+        }, 500);
+      },
+      clearData() {
+        this.images = []
+        document.getElementById('fileInput').value = ''
+      }
+    },
+    mounted() {
+      document.getElementById('fileInput').addEventListener('change', this.handleFileUpload);
+    }
+  });
+
+</script>
+
+</html>
