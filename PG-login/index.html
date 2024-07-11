@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link rel="icon" href="assets/img/favicon.png" sizes="32x32" />
+  <link rel="stylesheet" href="css/master.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="js/vue.min.js"></script>
+  <title>PG登录</title>
+</head>
+
+<body>
+  <div id="app">
+    <div class="page login-page" ref="loginPage">
+      <img class="loading" src="./assets/img/loading.gif" alt="">
+      <video id="bgv" autoplay muted playsinline>
+        <source :src="`./assets/video/${videoNum}.mp4`" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <img class="home_logo" src="./assets/img/home_logo.png" alt="">
+      <img class="slogan" src="./assets/img/slogan.png" alt="">
+      <div class="clickMask" @click="isShowForm = true">
+        <p>click to skip</p>
+      </div>
+      <transition name="fade">
+        <div class="main" v-if="isShowForm">
+          <img class="logo" src="./assets/img/login_logo.png">
+          <div class="login_form" @mouseleave="optionShow = 0">
+            <div class="selectContainer">
+              <div class="select" @click="optionShow = 'lang'">
+                <img class="langIcon" src="./assets/img/language.svg" alt="">
+                <img class="flag" :src="`./assets/img/${langOption[langValue].value}.png`" alt="">
+                <p>{{langOption[langValue].lang}}</p>
+                <div class="options" v-if="optionShow == 'lang'">
+                  <div class="lang" v-for="(item, index) in langOption" key="item.value"
+                    @click.stop="langValue = index,optionShow = 0,currencyValue = langValue">
+                    <img :src="`./assets/img/${item.value}.png`" alt="">
+                    <p>{{item.lang}}</p>
+                  </div>
+                </div>
+              </div>
+              <div class="select2">
+                <div class="select" @click="optionShow = 'utc'">
+                  <p>{{utcOption[utcValue]}}</p>
+                  <div class="options" v-if="optionShow == 'utc'">
+                    <div v-for="(item, index) in utcOption" :key="item" @click.stop="utcValue = index,optionShow = 0">
+                      <p>{{item}}</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="select" @click="optionShow = 'currency'">
+                  <img :src="`./assets/img/${currencyOption[currencyValue].value}.png`" alt="" class="flag">
+                  <p>{{currencyOption[currencyValue].currency}}</p>
+                  <div class="options" v-if="optionShow == 'currency'">
+                    <div v-for="(item, index) in currencyOption" :key="item.value"
+                      @click.stop="currencyValue = index,optionShow = 0">
+                      <img :src="`./assets/img/${item.value}.png`" alt="" class="flag">
+                      <p>{{item.currency}}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <p class="label">{{i18nUse.username}} *</p>
+              <input type="text" :placeholder="i18nUse.placeholder" v-model="username" />
+            </div>
+            <div>
+              <p class="label">{{i18nUse.password}} *</p>
+              <input type="password" :placeholder="i18nUse.placeholder" v-model="password" />
+              <p class="tip">*{{i18nUse.tip}}</p>
+            </div>
+            <button @click="loginHandler()">{{i18nUse.login}}</button>
+            <p class="copyright">©2018-2024 ALL Rights Reserved<br>( version 3.1.15 | 6.1.4.0 )</p>
+          </div>
+        </div>
+      </transition>
+    </div>
+  </div>
+</body>
+<script>
+  let vm = new Vue({
+    el: "#app",
+    data: {
+      videoNum: 0,
+      isPasswordIsShow: false,
+      username: "",
+      password: "",
+      i18n: {
+        zh: {
+          username: '用户名',
+          password: '密码',
+          placeholder: '请输入',
+          tip: '您输入的用户名或密码不正确',
+          login: '登入'
+        },
+        hk: {
+          username: '用戶名',
+          password: '密碼',
+          placeholder: '請輸入',
+          tip: '您輸入的用戶名或密碼不正確',
+          login: '登入'
+        },
+        pt: {
+          username: 'Nome de usuário',
+          password: 'Senha',
+          placeholder: 'Por favor insira',
+          tip: 'O nome de usuário ou senha que você digitou está incorreto',
+          login: 'Entrar'
+        },
+        en: {
+          username: 'Username',
+          password: 'Password',
+          placeholder: 'Please enter',
+          tip: 'The username or password you entered is incorrect',
+          login: 'Login'
+        },
+        hi: {
+          username: 'उपयोगकर्ता नाम',
+          password: 'पासवर्ड',
+          placeholder: 'कृपया दर्ज करें',
+          tip: 'आपके द्वारा दर्ज किया गया उपयोगकर्ता नाम या पासवर्ड गलत है',
+          login: 'लॉग इन करें'
+        },
+        id: {
+          username: 'Nama Pengguna',
+          password: 'Kata Sandi',
+          placeholder: 'Silakan masukkan',
+          tip: 'Nama pengguna atau kata sandi yang Anda masukkan salah',
+          login: 'Masuk'
+        },
+        vt: {
+          username: 'Tên người dùng',
+          password: 'Mật khẩu',
+          placeholder: 'Vui lòng nhập',
+          tip: 'Tên người dùng hoặc mật khẩu bạn nhập không chính xác',
+          login: 'Đăng nhập'
+        },
+        th: {
+          username: 'ชื่อผู้ใช้',
+          password: 'รหัสผ่าน',
+          placeholder: 'โปรดป้อน',
+          tip: 'ชื่อผู้ใช้หรือรหัสผ่านที่คุณป้อนไม่ถูกต้อง',
+          login: 'เข้าสู่ระบบ'
+        },
+        jp: {
+          username: 'ユーザー名',
+          password: 'パスワード',
+          placeholder: '入力してください',
+          tip: '入力したユーザー名またはパスワードが正しくありません',
+          login: 'ログイン'
+        },
+        kr: {
+          username: '사용자 이름',
+          password: '비밀번호',
+          placeholder: '입력하세요',
+          tip: '입력한 사용자 이름 또는 비밀번호가 잘못되었습니다',
+          login: '로그인'
+        }
+      },
+      langOption: [
+        {
+          value: 'zh',
+          lang: 'CN - 简体中文'
+        },
+        {
+          value: 'hk',
+          lang: 'HK - 繁体中文'
+        },
+        {
+          value: 'pt',
+          lang: 'PT - Português'
+        },
+        {
+          value: 'en',
+          lang: 'EN - English'
+        },
+        {
+          value: 'hi',
+          lang: 'HI - हिन्दी'
+        },
+        {
+          value: 'id',
+          lang: 'ID - Bahasa Indonesia'
+        },
+        {
+          value: 'vt',
+          lang: 'VT - Tiếng Việt'
+        },
+        {
+          value: 'th',
+          lang: 'TH - ไทย'
+        },
+        {
+          value: 'jp',
+          lang: 'JP - 日本語'
+        },
+        {
+          value: 'kr',
+          lang: 'KR - 한국어'
+        },
+      ],
+      utcOption: [
+        "UTC-12:00",
+        "UTC-11:00",
+        "UTC-10:00",
+        "UTC-09:30",
+        "UTC-09:00",
+        "UTC-08:00",
+        "UTC-07:00",
+        "UTC-06:00",
+        "UTC-05:00",
+        "UTC-04:00",
+        "UTC-03:30",
+        "UTC-03:00",
+        "UTC-02:00",
+        "UTC-01:00",
+        "UTC+00:00",
+        "UTC+01:00",
+        "UTC+02:00",
+        "UTC+03:00",
+        "UTC+03:30",
+        "UTC+04:00",
+        "UTC+04:30",
+        "UTC+05:00",
+        "UTC+05:30",
+        "UTC+05:45",
+        "UTC+06:00",
+        "UTC+06:30",
+        "UTC+07:00",
+        "UTC+08:00",
+        "UTC+08:45",
+        "UTC+09:00",
+        "UTC+09:30",
+        "UTC+10:00",
+        "UTC+10:30",
+        "UTC+11:00",
+        "UTC+12:00",
+        "UTC+12:45",
+        "UTC+13:00",
+        "UTC+14:00"
+      ],
+      currencyOption: [
+        {
+          value: 'zh',
+          currency: 'CNY'
+        },
+        {
+          value: 'hk',
+          currency: 'HKD'
+        },
+        {
+          value: 'pt',
+          currency: 'EUR'
+        },
+        {
+          value: 'en',
+          currency: 'GBP'
+        },
+        {
+          value: 'hi',
+          currency: 'INR'
+        },
+        {
+          value: 'id',
+          currency: 'IDR'
+        },
+        {
+          value: 'vt',
+          currency: 'VND'
+        },
+        {
+          value: 'th',
+          currency: 'THB'
+        },
+        {
+          value: 'jp',
+          currency: 'JPY'
+        },
+        {
+          value: 'kr',
+          currency: 'KRW'
+        },
+      ],
+      optionShow: 0,
+      langValue: 0,
+      utcValue: 13,
+      currencyValue: 0,
+      isShowForm: false
+    },
+    methods: {
+      loginHandler() {
+        const lang = this.langOption[this.langValue].value,
+          utc = this.utcOption[this.utcValue],
+          currency = this.currencyOption[this.currencyValue].currency,
+          username = this.username,
+          password = this.password
+
+        const formInfo = {
+          lang,
+          utc,
+          currency,
+          username,
+          password
+        }
+        console.log(formInfo);
+        //提交前的判断和提交代码自己写
+      },
+      changeUtcHandler(val) {
+        const lang = this.langOption[val].value;
+
+        switch (lang) {
+          case 'zh':
+          case 'hk':
+          case 'id':
+            this.utcValue = 27;
+            break;
+          case 'pt':
+          case 'en':
+            this.utcValue = 14;
+            break;
+          case 'hi':
+            this.utcValue = 22;
+            break;
+          case 'vt':
+          case 'th':
+            this.utcValue = 26;
+            break;
+          case 'jp':
+          case 'kr':
+            this.utcValue = 29;
+            break;
+          default:
+            break;
+        }
+      },
+      getRandomVideoAndRemove() {
+        // 获取保存在本地的数组
+        let videoArr = JSON.parse(localStorage.getItem('videoArr'));
+
+        // 如果没有保存的数组或者数组为空，则初始化数组
+        if (!videoArr || videoArr.length === 0) {
+          videoArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+        }
+        if (videoArr.length > 0) {
+          // 随机选择一个数字
+          const randomIndex = Math.floor(Math.random() * videoArr.length);
+          this.videoNum = videoArr[randomIndex];
+
+          // 从数组中移除选择的数字
+          videoArr.splice(randomIndex, 1);
+
+          // 如果数组长度为1，重置数组
+          if (videoArr.length === 1) {
+            videoArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+          }
+
+          // 保存更新后的数组到本地存储
+          localStorage.setItem('videoArr', JSON.stringify(videoArr));
+
+        } else {
+          // 如果数组为空，返回空或者适当的值，这里可以根据需要进行调整
+          return null;
+        }
+      }
+    },
+    computed: {
+      i18nUse() {
+        return this.i18n[this.langOption[this.langValue].value]
+      }
+    },
+    watch: {
+      langValue(newVal) {
+        this.changeUtcHandler(newVal)
+      }
+    },
+    mounted() {
+      // safari浏览器中播放背景视频会弹出小窗导致页面显示异常，所以禁用
+      // const userAgent = navigator.userAgent;
+      // // 判断是否在 Safari 浏览器中
+      // const isSafari = userAgent.indexOf('Safari') !== -1 && userAgent.indexOf('Version') !== -1;
+      // // 在 Safari 浏览器中不执行事件监听器
+      // if (!isSafari) {
+      //   // 获取.login-page元素的引用
+      //   const loginPage = this.$refs.loginPage;
+      //   loginPage.addEventListener('click', this.playVideoAndAudio);
+      // }
+
+      // 随机播放15个背景视频
+      this.getRandomVideoAndRemove();
+      // 当网速过慢视频无法播放24秒后强制显示登录表单
+      setTimeout(() => {
+        this.isShowForm = true
+      }, 24000);
+      // 页面加载完成后自动播放
+      const video = document.getElementById('bgv');
+      document.addEventListener('DOMContentLoaded', function () {
+        setTimeout(() => {
+          video.play();
+          video.className = 'play';
+        }, 1000);
+
+        function onVideoEnded() {
+          console.log('播放完成');
+          this.isShowForm = true
+          video.removeEventListener('ended', onVideoEnded);
+        }
+
+        video.addEventListener('ended', onVideoEnded.bind(this)); // 显式绑定函数
+      }.bind(this)); // 显式绑定整个函数的上下文到 Vue 组件实例
+
+      // 禁止双指捏合手势放大页面
+      document.addEventListener('touchstart', function (event) {
+        if (event.touches.length > 1) {
+          event.preventDefault();
+        }
+      }, { passive: false });
+      //获取当前浏览器语言设置页面语言
+      let userLanguage = navigator.language || navigator.userLanguage;
+
+      if (userLanguage.includes('zh-HK')) {
+        this.langValue = 1
+        this.currencyValue = 1
+        this.utcValue = 27;
+      } else if (userLanguage.includes('zh')) {
+        this.langValue = 0
+        this.currencyValue = 0
+        this.utcValue = 27;
+      } else if (userLanguage.includes('pt')) {
+        this.langValue = 2
+        this.currencyValue = 2
+        this.utcValue = 14;
+      } else if (userLanguage.includes('en')) {
+        this.langValue = 3
+        this.currencyValue = 3
+        this.utcValue = 14;
+      } else if (userLanguage.includes('hi')) {
+        this.langValue = 4
+        this.currencyValue = 4
+        this.utcValue = 22;
+      } else if (userLanguage.includes('id')) {
+        this.langValue = 5
+        this.currencyValue = 5
+        this.utcValue = 27;
+      } else if (userLanguage.includes('vi')) {
+        this.langValue = 6
+        this.currencyValue = 6
+        this.utcValue = 26;
+      } else if (userLanguage.includes('th')) {
+        this.langValue = 7
+        this.currencyValue = 7
+        this.utcValue = 26;
+      } else if (userLanguage.includes('ja')) {
+        this.langValue = 8
+        this.currencyValue = 8
+        this.utcValue = 29;
+      } else if (userLanguage.includes('ko')) {
+        this.langValue = 9
+        this.currencyValue = 9
+        this.utcValue = 29;
+      }
+    },
+  });
+</script>
+
+</html>
