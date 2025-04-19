@@ -89,10 +89,28 @@
         </div>
         <div class="loading">
             <img src="./img/blocks-shuffle.svg" alt="">
-            <p>正在加载<br>...</p>
+            <p>正在加载<br><span id="percentage">0%</span></p>
         </div>
     </div>
 
+    <script>
+        let progress = 0;
+        const percentageElement = document.getElementById('percentage');
+        
+        function updateProgress() {
+            if (progress < 100) {
+                progress += Math.random() * 15;
+                if (progress > 100) progress = 100;
+                percentageElement.textContent = Math.floor(progress) + '%';
+                
+                if (progress < 100) {
+                    setTimeout(updateProgress, 200 + Math.random() * 300);
+                }
+            }
+        }
+
+        updateProgress();
+    </script>
 </body>
 
 </html>
