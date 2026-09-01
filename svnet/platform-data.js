@@ -6,7 +6,7 @@
 window.PLATFORMS = [
   {
     id: "ag",
-    name: "AG（CO官方直营）",
+    name: "AG(CO官方直营)",
     short: "AG",
     type: "CO真人 · 即原AG",
     status: "live",
@@ -29,28 +29,16 @@ window.PLATFORMS = [
     note: "DB多宝官网1:1即将推出，含DB多宝贵宾会；可控API已可接入现金网。"
   },
   {
-    id: "evo",
-    name: "EVO真人",
-    short: "EVO",
-    type: "可控API",
-    status: "live",
-    member: ["YJ111.VIP"],
-    admin: [],
-    accounts: [{ user: "evo88", pass: "aabb1122" }],
-    tags: ["独立商户独立奖池", "RTP 10–90可调", "AI换牌"],
-    note: "独立商户、独立后台奖池；RTP值10–90调整操作强度；支持AI换牌（图像识别）。"
-  },
-  {
     id: "yaxin",
     name: "亚星",
     short: "亚星",
     type: "真人百家乐 · 分新版 / 旧版",
     status: "live",
     member: [
-      "www.yaxin799.com（新版）",
-      "www.yaxin988.com（新版）",
-      "www.yaxin199.com（旧版）",
-      "www.yaxin599.com（旧版）"
+      "www.yaxin799.com(新版)",
+      "www.yaxin988.com(新版)",
+      "www.yaxin199.com(旧版)",
+      "www.yaxin599.com(旧版)"
     ],
     admin: ["www.yaxin911.net"],
     accounts: [{ user: "c001 – c005", pass: "111222" }],
@@ -75,7 +63,7 @@ window.PLATFORMS = [
     short: "萬利",
     type: "真人百家乐",
     status: "live",
-    member: ["2l3168.com（电脑版）", "m.2l3168.com（手机版）"],
+    member: ["2l3168.com(电脑版)", "m.2l3168.com(手机版)"],
     admin: ["vip.2l3168.com"],
     accounts: [
       { user: "app000001", pass: "aabb0000" },
@@ -122,7 +110,7 @@ window.PLATFORMS = [
   },
   {
     id: "guest-club",
-    name: "贵宾会（AG亚洲贵宾会）",
+    name: "贵宾会(AG亚洲贵宾会)",
     short: "贵宾会",
     type: "1:1可控贵宾会",
     status: "live",
@@ -146,9 +134,9 @@ window.PLATFORMS = [
   },
   {
     id: "cashnet",
-    name: "可控现金网「赢家」",
+    name: "赢家可控现金网",
     short: "现金网",
-    type: "PG电子可控 + EVO/AG/DB真人可控",
+    type: "PG电子可控 + AG/DB真人可控",
     status: "live",
     member: ["www.YJ111.VIP", "www.YJ222.VIP", "www.YJ333.VIP"],
     admin: [],
@@ -158,12 +146,5 @@ window.PLATFORMS = [
   }
 ];
 
-/* 电话投注流程（cases.html独立小节） */
-window.PHONE_BET_STEPS = [
-  { title: "不设登入网址", desc: "无需向玩家公开登录入口，从源头降低域名泄露与追踪风险。" },
-  { title: "投手配置", desc: "客户可自行派遣投手，或由我们在现场配置专业投手团队。" },
-  { title: "电话指挥投注", desc: "投手通过电话实时指挥投注，流程闭环、响应迅速。" }
-];
-
 /* 平台名称徽章（首页矩阵顶部） */
-window.PLATFORM_BADGES = ["AG", "DB", "EVO", "亚星", "欧博", "萬利", "环球360", "利博", "UG", "CO"];
+window.PLATFORM_BADGES = ["AG", "DB", "亚星", "欧博", "萬利", "环球360", "利博", "UG", "CO"];

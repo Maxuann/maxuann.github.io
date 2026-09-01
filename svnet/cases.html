@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>演示体验 — 胜维科技 · 真人视讯可控平台</title>
-  <meta name="description" content="12组可控演示平台与试玩账号：AG、DB、EVO、亚星、欧博、萬利、利博、UG、贵宾会、现金网等，域名点击新窗口访问、密码直接展示、一键复制，无需注册即可体验。" />
+  <meta name="description" content="可控演示平台与试玩账号：AG、DB、亚星、欧博、萬利、利博、UG、贵宾会、现金网等，域名点击新窗口访问、密码直接展示、一键复制，无需注册即可体验。" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 
@@ -25,6 +25,7 @@
         <a href="about.html">关于我们</a>
         <a href="services.html">核心服务</a>
         <a href="cases.html" class="active">演示体验</a>
+        <a href="articles.html">内容中心</a>
         <a href="news.html">新闻中心</a>
         <a href="contact.html">联系我们</a>
       </nav>
@@ -61,20 +62,6 @@
     <section class="section-tight" id="cases" data-od-id="cases">
       <div class="container" id="case-cards">
         <!-- 由platform-data.js渲染 -->
-      </div>
-    </section>
-
-    <!-- ============ 电话投注流程 ============ -->
-    <section class="section" id="phone-bet" data-od-id="phone-bet">
-      <div class="container">
-        <div class="section-head reveal">
-          <p class="eyebrow">Phone Betting</p>
-          <h2 class="h2">电话投注流程</h2>
-          <p class="section-desc">不设登录网址的完整闭环，从域名安全到投注指挥。</p>
-        </div>
-        <div class="phonebet-grid" id="phonebet-grid">
-          <!-- 由PHONE_BET_STEPS渲染 -->
-        </div>
       </div>
     </section>
 
@@ -140,6 +127,7 @@
           <h4>公司</h4>
           <ul>
             <li><a href="about.html">关于我们</a></li>
+            <li><a href="articles.html">内容中心</a></li>
             <li><a href="news.html">新闻中心</a></li>
             <li><a href="contact.html">联系我们</a></li>
           </ul>
@@ -168,6 +156,8 @@
       var GLOBE_ICON = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.7 3.8 9S14.5 18.4 12 21c-2.5-2.6-3.8-5.7-3.8-9S9.5 5.6 12 3z"/></svg>';
       var KEY_ICON = '<svg viewBox="0 0 24 24"><circle cx="8" cy="14" r="4.5"/><path d="m11.5 10.5 8-8M17 5l2.5 2.5M14 8l2 2"/></svg>';
       var EXT_ICON = '<svg class="ext-icon" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg>';
+      var COPY_ICON = '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+      var CHECK_ICON = '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>';
 
       /* ---- 锚点导航 ---- */
       var navInner = document.getElementById("case-nav-inner");
@@ -179,10 +169,6 @@
           if (i === 0) a.classList.add("active");
           navInner.appendChild(a);
         });
-        var pb = document.createElement("a");
-        pb.href = "#phone-bet";
-        pb.textContent = "电话投注";
-        navInner.appendChild(pb);
       }
 
       /* ---- 详情卡片 ---- */
@@ -197,8 +183,10 @@
 
       function domainRows(list) {
         return list.map(function (d) {
+          var raw = String(d).split(/[（(]/)[0].trim();
           return '<div class="domain-row">' +
             '<a class="domain-text" href="' + domainHref(d) + '" target="_blank" rel="noopener noreferrer">' + d + EXT_ICON + '</a>' +
+            '<button type="button" class="copy-icon-btn" data-copy="' + raw + '" title="复制网址" aria-label="复制网址 ' + raw + '">' + COPY_ICON + '</button>' +
             '</div>';
         }).join("");
       }
@@ -290,17 +278,6 @@
         clearTimeout(eqTimer);
         eqTimer = setTimeout(equalizeHeights, 150);
       });
-
-      /* ---- 电话投注步骤 ---- */
-      var pbGrid = document.getElementById("phonebet-grid");
-      if (pbGrid && window.PHONE_BET_STEPS) {
-        window.PHONE_BET_STEPS.forEach(function (s, i) {
-          var el = document.createElement("div");
-          el.className = "phonebet-step reveal" + (i === 1 ? " reveal-delay-1" : i === 2 ? " reveal-delay-2" : "");
-          el.innerHTML = "<h3>" + s.title + "</h3><p>" + s.desc + "</p>";
-          pbGrid.appendChild(el);
-        });
-      }
     })();
   </script>
   <script src="script.js"></script>

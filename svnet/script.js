@@ -161,9 +161,12 @@
 
   /* ---------- 8. 一键复制（事件委托） ---------- */
   function flashCopied(btn) {
+    var iconOnly = btn.classList.contains("copy-icon-btn");
     var orig = btn.innerHTML;
     btn.classList.add("copied");
-    btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>已复制';
+    btn.innerHTML = iconOnly
+      ? '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>'
+      : '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>已复制';
     setTimeout(function () {
       btn.classList.remove("copied");
       btn.innerHTML = orig;
@@ -238,8 +241,10 @@
       });
     });
   }
+  /* 经典小弹窗仅用于无 .reader 的模态框（新闻中心）；
+     内容中心的 .reader 全屏阅读在下方 10b 处理 */
   var overlay = document.getElementById("news-modal");
-  if (overlay) {
+  if (overlay && !overlay.classList.contains("reader")) {
     var mTitle = overlay.querySelector(".modal h3");
     var mMeta = overlay.querySelector(".modal-meta");
     var mBody = overlay.querySelector(".modal-body");
@@ -260,6 +265,136 @@
     overlay.querySelector(".modal-close").addEventListener("click", closeModal);
     overlay.addEventListener("click", function (e) { if (e.target === overlay) closeModal(); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeModal(); });
+  }
+
+  /* ---------- 10b. 内容中心：下划线分栏筛选 + 头条/目录 + 全屏长文阅读 ---------- */
+  var artTabs = document.querySelectorAll(".art-tab");
+  var tocRows = document.querySelectorAll(".toc-row");
+  if (artTabs.length) {
+    artTabs.forEach(function (tab) {
+      tab.addEventListener("click", function () {
+        artTabs.forEach(function (t) { t.classList.remove("active"); });
+        tab.classList.add("active");
+        var cat = tab.getAttribute("data-filter");
+        tocRows.forEach(function (row) {
+          row.style.display = (cat === "all" || row.getAttribute("data-cat") === cat) ? "" : "none";
+        });
+        var lead = document.querySelector(".art-lead");
+        if (lead) lead.style.display = (cat === "all") ? "" : "none";
+        var visible = cat === "all" ? tocRows.length :
+          document.querySelectorAll('.toc-row[data-cat="' + cat + '"]').length;
+        var countEl = document.querySelector(".art-toc-head span");
+        if (countEl) countEl.textContent = "共 " + visible + " 篇";
+      });
+    });
+  }
+
+  /* 全屏长文阅读：.modal-overlay.reader */
+  var reader = document.getElementById("news-modal");
+  if (reader && reader.classList.contains("reader")) {
+    var rDoc = reader.querySelector(".reader-doc");
+    var rTitle = rDoc.querySelector("h2");
+    var rCat = rDoc.querySelector(".rk-cat");
+    var rDate = rDoc.querySelector(".rk-date");
+    var rLede = rDoc.querySelector(".reader-lede");
+    var rBody = rDoc.querySelector(".reader-body");
+    var rScroll = reader.querySelector(".modal");
+    var rProg = reader.querySelector(".reader-progress");
+    var rCloseBtn = reader.querySelector(".reader-close");
+    var lastTrigger = null; /* 记录触发源，关闭后归还焦点 */
+    var triggerMap = {};    /* [data-od-id] → 触发元素 */
+
+    function rClose() {
+      reader.classList.remove("open");
+      reader.setAttribute("aria-hidden", "true");
+      /* 解锁页面视口滚动（html+body 双锁，消除残留的第二条滚动条） */
+      document.body.style.overflow = "";
+      document.documentElement.classList.remove("reader-lock");
+      document.body.classList.remove("reader-lock");
+      if (rScroll) rScroll.scrollTop = 0;
+      if (rProg) rProg.style.width = "0%";
+      if (lastTrigger && document.contains(lastTrigger)) lastTrigger.focus({ preventScroll: true });
+      if (rCloseBtn && document.activeElement === rCloseBtn) lastTrigger = null;
+    }
+    function rOpen(item, trigger, fromHash) {
+      rTitle.textContent = item.getAttribute("data-title") || "";
+      rCat.textContent = item.getAttribute("data-catlabel") || "";
+      rDate.textContent = item.getAttribute("data-date") || "";
+      rLede.textContent = item.getAttribute("data-lede") || "";
+      rBody.innerHTML = item.getAttribute("data-body") || "";
+      lastTrigger = trigger || null;
+      reader.classList.add("open");
+      reader.setAttribute("aria-hidden", "false");
+      /* 锁定页面视口滚动：html+body 双锁。
+         基类 overflow-x:hidden/clip 使视口滚动落在 <html> 上，
+         仅锁 body 会残留第二条（页面）滚动条，与阅读面板滚动条并存。 */
+      document.body.style.overflow = "hidden";
+      document.documentElement.classList.add("reader-lock");
+      document.body.classList.add("reader-lock");
+      /* 定位到顶部：先立即归零，再在内容布局稳定后（双 rAF）二次校正，
+         避免新文章排版完成前 scrollTop 被旧尺寸钳制而停在中间 */
+      if (rScroll) {
+        rScroll.scrollTop = 0;
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            if (reader.classList.contains("open")) rScroll.scrollTop = 0;
+          });
+        });
+      }
+      rProgUpdate();
+      if (!fromHash) rCloseBtn.focus({ preventScroll: true });
+    }
+    function rProgUpdate() {
+      if (!rProg || !rScroll) return;
+      var max = rScroll.scrollHeight - rScroll.clientHeight;
+      rProg.style.width = (max > 0 ? (rScroll.scrollTop / max) * 100 : 0) + "%";
+    }
+    if (rScroll) rScroll.addEventListener("scroll", function () {
+      if (reader.classList.contains("open")) rProgUpdate();
+    }, { passive: true });
+    /* 收集所有可阅读入口（头条 + 目录行），建立 hash 索引 */
+    var readEls = Array.prototype.slice.call(document.querySelectorAll("[data-read]"));
+    readEls.forEach(function (el) {
+      var id = el.getAttribute("data-od-id") || "";
+      if (id) triggerMap[id] = el;
+      el.addEventListener("click", function () {
+        rOpen(el, el);
+        if (id) history.replaceState(null, "", "#" + id);
+      });
+      /* 目录行为 role=button 的 div：支持 Enter / 空格 */
+      if (el.getAttribute("role") === "button") {
+        el.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+            e.preventDefault();
+            rOpen(el, el);
+            if (id) history.replaceState(null, "", "#" + id);
+          }
+        });
+      }
+    });
+    /* 点击头条卡片空白区域（非按钮）同样打开阅读 */
+    var lead = document.querySelector(".art-lead");
+    if (lead) {
+      lead.addEventListener("click", function (e) {
+        if (e.target.closest(".art-lead-action")) return; /* 按钮自身已绑定 */
+        rOpen(lead, lead);
+      });
+    }
+    rCloseBtn.addEventListener("click", rClose);
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && reader.classList.contains("open")) rClose();
+    });
+    /* hash 深链：#article-xxx 直达对应文章 */
+    function openFromHash() {
+      var id = (location.hash || "").slice(1);
+      if (!id) return;
+      var item = triggerMap[id] || (document.getElementById(id) && document.querySelector('[data-od-id="' + id + '"]'));
+      if (item && item.hasAttribute("data-read")) {
+        rOpen(item, item, true);
+      }
+    }
+    openFromHash();
+    window.addEventListener("hashchange", openFromHash);
   }
 
   /* ---------- 11. cases.html锚点导航 ----------
