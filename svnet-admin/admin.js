@@ -1519,7 +1519,7 @@
     home: { title: "首页", sub: "首页 · Hero / 数据 / 产品线 / 优势 / 流程 / 证言" },
     about: { title: "关于我们", sub: "关于我们 · 简介 / 发展历程 / 核心能力 / 企业文化" },
     services: { title: "核心服务", sub: "核心服务 · 五大服务能力" },
-    platforms: { title: "演示体验", sub: "演示体验 · 演示平台 / 会员 / 管理入口与试玩账号" },
+    platforms: { title: "产品演示", sub: "产品演示 · 演示平台 / 会员 / 管理入口与试玩账号" },
     articles: { title: "内容中心", sub: "内容中心 · 技术解析 / 接入指南 / 运营策略 / 行业洞察" },
     news: { title: "新闻中心", sub: "新闻中心 · 产品动态 / 行业观察" },
     contact: { title: "联系我们", sub: "联系我们 · 商务信息与常见问题" },
@@ -1533,7 +1533,7 @@
     { key: "home", l: "首页" },
     { key: "about", l: "关于我们" },
     { key: "services", l: "核心服务" },
-    { key: "platforms", l: "演示体验" },
+    { key: "platforms", l: "产品演示" },
     { key: "articles", l: "内容中心" },
     { key: "news", l: "新闻中心" },
     { key: "contact", l: "联系我们" },
@@ -1580,12 +1580,14 @@
     var layer = chart.querySelector(".trend-hover");
     var guide = chart.querySelector(".trend-guide");
     var tip = chart.querySelector(".trend-tip");
+    var hdot = chart.querySelector(".trend-dot");
     var dot = chart.querySelector(".trend-end-dot");
     if (!svg || !layer || !guide || !tip) return;
     var pts;
     try { pts = JSON.parse(chart.getAttribute("data-points") || "[]"); } catch (e) { return; }
     if (!pts.length) return;
-    var prev = pts.slice(16, 23);
+    var maxV = 1;
+    for (var mi = 0; mi < pts.length; mi++) if (pts[mi].v > maxV) maxV = pts[mi].v;
     function fnum(s) { return String(s).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
     function showAt(clientX) {
       var r = svg.getBoundingClientRect();
@@ -1594,24 +1596,20 @@
       var idx = Math.min(Math.round(f * 29), 29);
       var p = pts[idx];
       if (!p) return;
-      var x = f * r.width;
-      var prevP = prev[idx - 16];
-      var prevV = prevP ? prevP.v : null;
-      var d = null;
-      if (prevV) d = Math.round((p.v - prevV) / prevV * 1000) / 10;
-      var html = '<b>' + esc(p.date) + "</b>" +
-        '<span class="trend-tip-row"><i class="trend-swatch cur"></i>本周<b>' + fnum(p.v) + "</b></span>";
-      if (prevV) {
-        html += '<span class="trend-tip-row"><i class="trend-swatch prev"></i>上周<b>' + fnum(prevV) + "</b></span>" +
-          '<span class="trend-tip-row"><i class="trend-swatch none"></i>环比<b class="' + (d >= 0 ? "up" : "down") + '">' + (d >= 0 ? "+" : "") + d + "%</b></span>";
-      }
+      // 吸附到最近的数据点：与 SVG 生成器同一坐标公式（viewBox 100×44）换算到像素
+      var px = (1 + (idx / 29) * (100 - 2)) / 100 * r.width;
+      var py = (3 + (1 - p.v / maxV) * (44 - 6)) / 44 * r.height;
+      // 提示卡只显示两行：日期 / 访客数
+      var html = '<span class="trend-tip-row"><i class="trend-swatch cur"></i>日期<b>' + esc(p.date) + "</b></span>" +
+        '<span class="trend-tip-row"><i class="trend-swatch cur"></i>访客数<b>' + fnum(p.v) + "</b></span>";
       tip.innerHTML = html;
-      guide.style.left = x + "px";
+      guide.style.left = px + "px";
       guide.style.display = "block";
       tip.style.display = "block";
+      if (hdot) { hdot.style.left = px + "px"; hdot.style.top = py + "px"; hdot.style.display = "block"; }
       // 水平：贴左侧或右侧（不溢出图表区）；垂直：始终在上半区
-      var left = x + 14;
-      if (left + tip.offsetWidth > r.width - 4) left = x - 14 - tip.offsetWidth;
+      var left = px + 14;
+      if (left + tip.offsetWidth > r.width - 4) left = px - 14 - tip.offsetWidth;
       if (left < 4) left = 4;
       var top = 6;
       if (top + tip.offsetHeight > r.height - 4) top = r.height - tip.offsetHeight - 4;
@@ -1620,12 +1618,11 @@
       tip.style.top = top + "px";
     }
     function hide() {
-      layer.classList.remove("on");
       guide.style.display = "none";
       tip.style.display = "none";
+      if (hdot) hdot.style.display = "none";
     }
     layer.addEventListener("mousemove", function (e) {
-      layer.classList.add("on");
       if (dot) dot.style.display = "none";
       showAt(e.clientX);
     });
@@ -1666,7 +1663,6 @@
       var cut = dstr(-n);
       return items.filter(function (x) { return x.date >= cut; }).length;
     }
-    var artThisMonth = db.articles.filter(function (a) { return a.date.slice(0, 7) === dstr(0).slice(0, 7); }).length;
     var art30d = withinDays(db.articles, 30);
     var artCats = {};
     db.articles.forEach(function (a) { artCats[a.category] = (artCats[a.category] || 0) + 1; });
@@ -1677,7 +1673,6 @@
     db.news.forEach(function (x) { newsTop[x.category] = (newsTop[x.category] || 0) + 1; });
     var newsCatNames = { product: "产品", industry: "行业", company: "公司" };
     var newsCatTxt = Object.keys(newsTop).map(function (k) { return (newsCatNames[k] || k) + " " + newsTop[k]; }).join(" · ");
-    var featCount = db.services.reduce(function (s, x) { return s + (x.features ? x.features.length : 0); }, 0);
     function fmtFull(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
 
     /* 顶部指标卡次级行：内容库真实计数 + 演示统计值（标注于副标题/口径说明） */
@@ -1686,13 +1681,14 @@
       var subHtml = "";
       if (subs && subs.length) {
         subHtml = '<div class="stat-sub">' + subs.map(function (s) {
-          return '<span class="stat-cell"><span class="stat-cell-k">' + s.k + '</span><span class="stat-cell-v">' + s.v + "</span></span>";
+          return '<div class="stat-cell"><span class="stat-cell-k">' + s.k + '</span><span class="stat-cell-v">' + s.v + "</span></div>";
         }).join("") + "</div>";
       }
       return '<div class="stat-card" data-act="open" data-mod="' + mod + '" role="button" tabindex="0">' +
         '<div class="stat-top"><span class="stat-label">' + esc(label) + '</span><span class="stat-ico">' + ico + "</span></div>" +
-        '<div class="stat-num">' + num + "</div>" +
-        (foot ? '<div class="stat-foot">' + foot + "</div>" : "") + subHtml + "</div>";
+        '<div class="stat-main"><div class="stat-num">' + num + "</div>" +
+        (foot ? '<div class="stat-foot">' + foot + "</div>" : "") + "</div>" +
+        subHtml + "</div>";
     }
 
     /* —— 访客统计（演示数据，未接入真实统计服务） —— */
@@ -1718,27 +1714,59 @@
       for (i = 23; i < 30; i++) last7 += trend[i].v;
       var prev7 = 0;
       for (i = 16; i < 23; i++) prev7 += trend[i].v;
-      var d7 = [
-        { label: "搜索引擎", v: Math.round(last7 * 0.32), d: 8.2 },
-        { label: "直接访问", v: Math.round(last7 * 0.24), d: 3.6 },
-        { label: "Telegram 引流", v: Math.round(last7 * 0.19), d: 12.4 },
-        { label: "演示页外链", v: Math.round(last7 * 0.14), d: -2.1 },
-        { label: "社交媒体", v: Math.round(last7 * 0.11), d: 5.8 },
-        { label: "其他渠道", v: last7 - Math.round(last7 * 0.32) - Math.round(last7 * 0.24) - Math.round(last7 * 0.19) - Math.round(last7 * 0.14) - Math.round(last7 * 0.11), d: -1.3 }
+      /* 访问渠道：优先读前台 script.js 第 16 节的实测埋点（同源 localStorage sw_visitor_log），
+         近 7 天有实测数据时展示真实值（d 为相对昨日变化）；否则回退演示占比。
+         实测口径与前台埋点一致，只统计 referrer 可判定的 4 类：
+         搜索引擎 / 社交媒体 / 外站引流 / 直接访问。
+         （Telegram / 微信等 App 内网页通常不带 referrer，会归入「直接访问」。） */
+      var CH_META = [
+        { k: "search", label: "搜索引擎", d: 0 },
+        { k: "social", label: "社交媒体", d: 0 },
+        { k: "external", label: "外站引流", d: 0 },
+        { k: "direct", label: "直接访问", d: 0 }
       ];
-      var devices = [
-        { label: "移动设备", v: Math.round(last7 * 0.58), d: 4.2 },
-        { label: "桌面设备", v: Math.round(last7 * 0.33), d: -1.8 },
-        { label: "平板设备", v: last7 - Math.round(last7 * 0.58) - Math.round(last7 * 0.33), d: 0.9 }
+      var chDemo = [
+        { label: "搜索引擎", v: Math.round(last7 * 0.38), d: 8.2 },
+        { label: "社交媒体", v: Math.round(last7 * 0.18), d: 12.4 },
+        { label: "外站引流", v: Math.round(last7 * 0.15), d: -2.1 },
+        { label: "直接访问", v: last7 - Math.round(last7 * 0.38) - Math.round(last7 * 0.18) - Math.round(last7 * 0.15), d: 3.6 }
       ];
-      var browsers = [
-        { label: "Chrome", v: Math.round(last7 * 0.41), d: 1.2 },
-        { label: "Safari", v: Math.round(last7 * 0.22), d: 2.4 },
-        { label: "Edge", v: Math.round(last7 * 0.09), d: -0.8 },
-        { label: "其他浏览器", v: last7 - Math.round(last7 * 0.41) - Math.round(last7 * 0.22) - Math.round(last7 * 0.09), d: 0.4 }
+      var d7 = chDemo;
+      var channelsReal = false;
+      try {
+        var _vl = JSON.parse(localStorage.getItem("sw_visitor_log") || "");
+        if (_vl && _vl.days) {
+          function _chSum(r0, r1) {
+            var agg = { search: 0, social: 0, external: 0, direct: 0 };
+            for (var i = r0; i < r1; i++) {
+              var rec = _vl.days[dstr(-i)];
+              if (rec && rec.ch) {
+                for (var k in rec.ch) { if (agg[k] !== undefined) agg[k] += rec.ch[k]; }
+              }
+            }
+            return agg;
+          }
+          var cA = _chSum(0, 7), cB = _chSum(1, 8);
+          var _cTotal = 0;
+          for (var _ci = 0; _ci < 4; _ci++) _cTotal += cA[CH_META[_ci].k];
+          if (_cTotal > 0) {
+            channelsReal = true;
+            d7 = CH_META.map(function (m) {
+              var v = cA[m.k], y = cB[m.k];
+              var d = y > 0 ? Math.round((v - y) / y * 1000) / 10 : 0;
+              return { label: m.label, v: v, d: d };
+            });
+          }
+        }
+      } catch (e) { /* 无实测数据 → 保持演示占比 */ }
+      var os = [
+        { label: "Windows", v: Math.round(last7 * 0.33), d: 1.5 },
+        { label: "macOS", v: last7 - Math.round(last7 * 0.33) - Math.round(last7 * 0.28) - Math.round(last7 * 0.27), d: -1.2 },
+        { label: "Android", v: Math.round(last7 * 0.27), d: 5.6 },
+        { label: "iOS", v: Math.round(last7 * 0.28), d: 4.2 }
       ];
       var pages = [
-        { label: "演示体验", v: Math.round(last7 * 0.31), d: 6.1 },
+        { label: "产品演示", v: Math.round(last7 * 0.31), d: 6.1 },
         { label: "内容中心", v: Math.round(last7 * 0.24), d: 9.7 },
         { label: "首页", v: Math.round(last7 * 0.22), d: 2.3 },
         { label: "核心服务", v: Math.round(last7 * 0.13), d: 4.5 },
@@ -1746,21 +1774,22 @@
         { label: "联系我们", v: last7 - Math.round(last7 * 0.31) - Math.round(last7 * 0.24) - Math.round(last7 * 0.22) - Math.round(last7 * 0.13) - Math.round(last7 * 0.09), d: 1.1 }
       ];
       var regions = [
-        { label: "新加坡", v: Math.round(last7 * 0.27), d: 3.4 },
-        { label: "欧洲（西欧/东欧）", v: Math.round(last7 * 0.22), d: 5.1 },
+        { label: "东南亚", v: Math.round(last7 * 0.27) + Math.round(last7 * 0.15), d: 4.5 },
+        { label: "欧洲", v: Math.round(last7 * 0.22), d: 5.1 },
         { label: "北美洲", v: Math.round(last7 * 0.19), d: 1.8 },
-        { label: "东南亚其他", v: Math.round(last7 * 0.15), d: 6.6 },
         { label: "大洋洲", v: Math.round(last7 * 0.08), d: -0.7 },
-        { label: "其他区域", v: last7 - Math.round(last7 * 0.27) - Math.round(last7 * 0.22) - Math.round(last7 * 0.19) - Math.round(last7 * 0.15) - Math.round(last7 * 0.08), d: 0.5 }
+        { label: "其他区域", v: last7 - Math.round(last7 * 0.27) - Math.round(last7 * 0.15) - Math.round(last7 * 0.22) - Math.round(last7 * 0.19) - Math.round(last7 * 0.08), d: 0.5 }
       ];
+      var chTotal = 0;
+      for (var _ti = 0; _ti < d7.length; _ti++) chTotal += d7[_ti].v;
       return {
         trend: trend, last7: last7, prev7: prev7,
         bounce: 38.6, bounceDelta: -2.4,
         duration: 342, returnRate: 31.2, returnDelta: 1.8,
         newShare: Math.round(last7 * 0.54),
         convView: Math.round(last7 * 0.18), convBook: Math.round(last7 * 0.062), convCs: Math.round(last7 * 0.038),
-        channels: d7, devices: devices,
-        browsers: browsers, pages: pages, regions: regions
+        channels: d7, channelsReal: channelsReal, channelsTotal: chTotal, os: os,
+        pages: pages, regions: regions
       };
     })();
 
@@ -1792,30 +1821,19 @@
         '<text x="50" y="48" text-anchor="middle" class="donut-c-num">' + centerTop + '</text><text x="50" y="59" text-anchor="middle" class="donut-c-sub">' + centerSub + "</text></svg>" +
         '</div><div class="lg-list">' + legs + "</div></div>";
     }
-    /* 类目对比型数据 → 垂直柱状图（增长类目高亮金色，其余中性灰） */
+    /* 类目对比型数据 → 垂直柱状图（全部金色） */
     function barChart(items) {
       var maxV = Math.max.apply(null, items.map(function (x) { return x.v; }).concat([1]));
       var cols = "", labs = "", grid = "";
-      for (var g = 1; g <= 3; g++) grid += '<i style="bottom:' + (g * 25) + '%"></i>';
+      for (var g = 1; g <= 3; g++) grid += '<i style="bottom:calc(18px + (100% - 38px) * ' + (g / 4) + ')"></i>';
       for (var i = 0; i < items.length; i++) {
         var h = Math.max(Math.round((items[i].v / maxV) * 100), 4);
-        cols += '<div class="vbar-col"><div class="vbar-track"><div class="vbar-fill' + (items[i].hot ? " hot" : "") + '" style="height:' + h + '%"></div></div><span class="vbar-val">' + (items[i].v >= 10000 ? Math.round(items[i].v / 1000 * 10) / 10 + "k" : items[i].v) + "</span></div>";
+        var valTxt = (items[i].v >= 10000 ? Math.round(items[i].v / 1000 * 10) / 10 + "k" : items[i].v);
+        cols += '<div class="vbar-col"><div class="vbar-track"><div class="vbar-fill" style="height:' + h + '%"></div><span class="vbar-val" style="bottom:calc(' + h + '% + 3px)">' + valTxt + '</span></div></div>';
         labs += '<span class="vbar-lab" title="' + items[i].label + '">' + items[i].short + "</span>";
       }
       return '<div class="vbar-chart">' + grid + '<div class="vbar-cols">' + cols + '</div><div class="vbar-x">' + labs + "</div></div>";
-    }
-    /* 小类占比 → 单行堆叠条 + 图例 */
-    function stackBar(items, total) {
-      total = Math.max(total, 1);
-      var seg = "", legs = "";
-      for (var i = 0; i < items.length; i++) {
-        var f = items[i].v / total;
-        if (f < 0.008) continue;
-        seg += '<i style="width:' + (f * 100).toFixed(2) + "%;background:" + items[i].c + '" title="' + items[i].label + " " + (f * 100).toFixed(1) + '%"></i>';
-        legs += '<div class="lg-row"><span class="lg-dot" style="background:' + items[i].c + '"></span><span class="lg-label">' + items[i].label + '</span><span class="lg-nums"><b>' + fmtFull(items[i].v) + '</b><span class="lg-pct">' + (f * 100).toFixed(1) + "%" + "</span></span></div>";
-      }
-      return '<div class="stack-bar">' + seg + '</div><div class="lg-list">' + legs + "</div>";
-    }
+          }
     function anaCard(ico, title, sub, body) {
           return '<div class="card ana-card" data-od-id="' + title + '"><div class="card-head"><span class="ana-ico">' + ico + '</span><h3>' + title + '</h3><span class="card-sub">' + sub + '</span></div><div class="card-pad">' + body + '</div></div>';
         }
@@ -1837,7 +1855,7 @@
       return '<line x1="0" y1="' + y + '" x2="' + trendW + '" y2="' + y + '" style="stroke:var(--border)" stroke-width="1" vector-effect="non-scaling-stroke" opacity="0.55"/>';
     }).join("");
     var conv = [
-      { label: "进入演示体验", v: ANA.convView, d: 4.8, pct: 100 },
+      { label: "进入产品演示", v: ANA.convView, d: 4.8, pct: 100 },
       { label: "发起预约演示", v: ANA.convBook, d: 6.2, pct: Math.round(ANA.convBook / ANA.convView * 100) },
       { label: "发起客服会话", v: ANA.convCs, d: 3.1, pct: Math.round(ANA.convCs / ANA.convView * 100) }
     ];
@@ -1861,44 +1879,26 @@
         "<span><span class=\"activity-text\">" + esc(name) + "</span><span class=\"activity-time\">" + esc(a.date) + " " + esc(a.time) + "</span></span></div>";
     }).join("") || '<div class="activity-item"><span class="activity-text" style="color:var(--muted)">暂无操作记录。增删改内容后会在此显示。</span></div>';
 
-    /* 内容分布 */
-    var dist = [
-      { label: "演示平台", val: c.platforms },
-      { label: "内容文章", val: c.articles },
-      { label: "新闻", val: c.news },
-      { label: "核心服务", val: c.services }
-    ];
-    var distMax = Math.max.apply(null, dist.map(function (d) { return d.val; }).concat([1]));
-    var distHtml = dist.map(function (d) {
-      return '<div class="dist-row"><div class="dist-top"><span>' + d.label + '</span><span class="dist-val">' + d.val + "</span></div>" +
-        '<div class="dist-bar"><div class="dist-fill" style="width:' + Math.max(Math.round(d.val / distMax * 100), 6) + '%"></div></div></div>';
-    }).join("");
-
     return "" +
       '<div class="stats-grid" data-od-id="ov-stats">' +
       statCard("platforms", IC.box, "演示平台", c.platforms, "<b>" + livePlat + "</b> 已上线 · " + soonPlat + " 即将上线", [
         { k: "近 30 天上线", v: String(plat30d) },
-        { k: "区域覆盖", v: "东南亚 / 欧美" },
-        { k: "近 7 天访客", v: fmtFull(ANA.pages.filter(function (p) { return p.label === "演示体验"; })[0].v) }
+        { k: "近 7 天访客", v: fmtFull(ANA.pages.filter(function (p) { return p.label === "产品演示"; })[0].v) },
+        { k: "区域覆盖", v: "东南亚 / 欧美" }
       ]) +
       statCard("articles", IC.doc, "内容文章", c.articles, featured + " 篇头条", [
-        { k: "本月发布", v: String(artThisMonth) },
-        { k: "近 30 天", v: String(art30d) },
+        { k: "近 30 天上线", v: String(art30d) },
+        { k: "最新发布", v: db.articles.length ? db.articles[0].date : "—" },
         { k: "栏目分布", v: artCatTxt || "暂无" }
       ]) +
       statCard("news", IC.press, "新闻", c.news, "产品 / 行业 / 公司动态", [
-        { k: "近 30 天", v: String(withinDays(db.news, 30)) },
-        { k: "栏目分布", v: newsCatTxt || "暂无" },
-        { k: "最新发布", v: db.news.length ? db.news[0].date : "—" }
-      ]) +
-      statCard("services", IC.tool, "核心服务", c.services, "覆盖产品全生命周期", [
-        { k: "能力项", v: String(featCount) },
-        { k: "服务板块", v: c.services + " 大项" },
-        { k: "服务承诺", v: "7×24 支持" }
+        { k: "近 30 天上线", v: String(withinDays(db.news, 30)) },
+        { k: "最新发布", v: db.news.length ? db.news[0].date : "—" },
+        { k: "栏目分布", v: newsCatTxt || "暂无" }
       ]) +
       "</div>" +
       '<section class="ana-sec" data-od-id="ov-ana">' +
-      '<div class="ana-head"><h2>访客统计</h2><span class="card-sub">近 30 天 · 演示数据（未接入真实统计服务）</span><span class="ana-legend"><span class="lg"><i style="background:var(--gold-gradient)"></i>本周</span><span class="lg"><i style="background:var(--muted)"></i>上周</span></span></div>' +
+      '<div class="ana-head"><h2>访客统计</h2><span class="card-sub">访问渠道来自前台埋点实测，其余为演示数据</span></div>' +
       '<div class="ana-grid">' +
       '<div class="card" data-od-id="ana-trend">' +
       '<div class="card-head"><h3>访问趋势</h3><span class="card-sub">近 30 天每日访客</span></div>' +
@@ -1910,12 +1910,14 @@
       '<polygon points="' + pts + " " + trendW + "," + trendH + " 0," + trendH + '" style="fill:var(--accent-soft)"/>' +
       '<polyline points="' + prevPts + '" fill="none" stroke-width="1" stroke-linejoin="round" vector-effect="non-scaling-stroke" stroke-dasharray="3 3" style="stroke:var(--muted)"/>' +
       '<polyline points="' + pts + '" fill="none" stroke-width="1.4" stroke-linejoin="round" vector-effect="non-scaling-stroke" style="stroke:var(--accent)"/>' +
-      '<circle cx="' + lastPt[0] + '" cy="' + lastPt[1] + '" r="1.4" style="fill:var(--accent)" vector-effect="non-scaling-stroke"/>' +
-      '<ellipse class="trend-end-dot" cx="' + lastPt[0] + '" cy="' + lastPt[1] + '" rx="2.4" ry="2.4" style="fill:var(--accent);stroke:var(--surface)" vector-effect="non-scaling-stroke" stroke-width="2"/>' +
+      '<ellipse class="trend-end-dot" cx="' + lastPt[0] + '" cy="' + lastPt[1] + '" rx="0.6" ry="0.6" style="fill:var(--accent);stroke:var(--surface)" vector-effect="non-scaling-stroke" stroke-width="1"/>' +
       "</svg>" +
-      '<div class="trend-hover" data-trend-hover="1"><div class="trend-guide"></div><span class="trend-tip"></span></div>' +
+      '<div class="trend-hover" data-trend-hover="1"><div class="trend-guide"></div><span class="trend-dot"></span><span class="trend-tip"></span></div>' +
       '<div class="trend-x"><span>' + ANA.trend[0].date + "</span><span>近 30 天</span><span>" + ANA.trend[29].date + "</span></div>" +
       "</div></div></div>" +
+      '<div class="card ov-fill" data-od-id="ov-activity"><div class="card-head"><h3>最近操作</h3><span class="card-sub">演示环境记录</span></div><div class="card-pad"><div class="activity-list">' + actHtml + "</div></div></div>" +
+      '</div>' +
+      '<div class="overview-grid">' +
       anaCard(IC.eye, "核心指标", "本周 vs 上周",
         '<div class="kpi-grid">' +
         '<div class="kpi"><div class="kpi-label">平均停留时长</div><div class="kpi-num">5<span class="kpi-unit">分 42秒</span></div><span class="kpi-foot trend-delta up">+0:12 较上周</span></div>' +
@@ -1923,20 +1925,13 @@
         '<div class="kpi"><div class="kpi-label">回访率</div><div class="kpi-num">' + ANA.returnRate.toFixed(1) + '<span class="kpi-unit">%</span></div><span class="kpi-foot trend-delta up">+' + ANA.returnDelta.toFixed(1) + "% 较上周</span></div>" +
         '<div class="kpi"><div class="kpi-label">新访客占比</div><div class="kpi-num">' + Math.round(ANA.newShare / ANA.last7 * 100) + '<span class="kpi-unit">%</span></div><span class="kpi-foot">' + fmtFull(ANA.newShare) + " 人（近 7 天）</span></div>" +
         '</div>') +
-      '</div>' +
-      '<div class="overview-grid">' +
-      '<div class="card ov-fill" data-od-id="ov-content"><div class="card-head"><h3>内容分布</h3><span class="card-sub">前台各模块内容规模</span></div><div class="card-pad" style="display:flex;flex-direction:column;justify-content:space-between;gap:18px">' + distHtml + "</div></div>" +
-      '<div class="card ov-fill" data-od-id="ov-activity"><div class="card-head"><h3>最近操作</h3><span class="card-sub">演示环境记录</span></div><div class="card-pad" style="padding-top:6px"><div class="activity-list">' + actHtml + "</div></div></div>" +
       anaCard(IC.bounce, "转化路径", "演示引导漏斗（近 7 天）", convHtml) +
+      anaCard(IC.box, "热门页面", "近 7 天 · 页面访问对比", barChart(ANA.pages.map(function (x) { return { label: x.label, short: x.label.slice(0, 2), v: x.v }; }))) +
       "</div>" +
       '<div class="ana-grid ana-grid-2">' +
-      anaCard(IC.eye, "访问渠道", "近 7 天 · 来源占比", donutChart(ANA.channels.map(function (x, i) { return { label: x.label, v: x.v, d: x.d, c: CHART[i % CHART.length] }; }), fmtFull(ANA.last7), "近 7 天访客")) +
-      anaCard(IC.box, "热门页面", "近 7 天 · 页面访问对比", barChart(ANA.pages.map(function (x) { return { label: x.label, short: x.label.slice(0, 2), v: x.v, hot: x.d >= 3 }; }))) +
-      anaCard(IC.doc, "设备与浏览器", "近 7 天 · 终端构成",
-        donutChart(ANA.devices.map(function (x, i) { return { label: x.label, v: x.v, d: x.d, c: CHART[i % CHART.length] }; }), fmtFull(ANA.last7), "设备访问") +
-        '<div class="ana-sublabel">浏览器</div>' +
-        stackBar(ANA.browsers.map(function (x, i) { return { label: x.label, v: x.v, c: CHART[i % CHART.length] }; }), ANA.last7)) +
-      anaCard(IC.clock, "地域分布", "近 7 天 · 访客区域", donutChart(ANA.regions.map(function (x, i) { return { label: x.label, v: x.v, d: x.d, c: CHART[i % CHART.length] }; }), fmtFull(ANA.last7), "覆盖访客")) +
+      anaCard(IC.eye, "访问渠道", (ANA.channelsReal ? "近 7 天 · 实测（前台埋点）" : "近 7 天 · 来源占比（演示）"), donutChart(ANA.channels.map(function (x, i) { return { label: x.label, v: x.v, d: x.d, c: CHART[i % CHART.length] }; }), fmtFull(ANA.channelsTotal), (ANA.channelsReal ? "近 7 天实测访问" : "近 7 天访客"))) +
+      anaCard(IC.doc, "操作系统", "近 7 天 · 系统类别", donutChart(ANA.os.map(function (x, i) { return { label: x.label, v: x.v, d: x.d, c: CHART[i % CHART.length] }; }), fmtFull(ANA.last7), "系统访问")) +
+      anaCard(IC.clock, "地域分布", "近 7 天 · 大洲占比", donutChart(ANA.regions.map(function (x, i) { return { label: x.label, v: x.v, d: x.d, c: CHART[i % CHART.length] }; }), fmtFull(ANA.last7), "覆盖访客")) +
       "</div>" +
       "</section>";
   };
@@ -1960,7 +1955,7 @@
         "</div></td></tr>";
     }).join("");
     return "" +
-      '<div class="page-head"><h1>演示体验</h1><p>演示平台矩阵 · 共 ' + list.length + " 个平台，拖动把手或使用箭头调整前台展示顺序。</p></div>" +
+      '<div class="page-head"><h1>产品演示</h1><p>演示平台矩阵 · 共 ' + list.length + " 个平台，拖动把手或使用箭头调整前台展示顺序。</p></div>" +
       '<div class="page-toolbar"><button type="button" class="btn btn-primary" data-add="platforms">' + IC.plus + " 新增平台</button>" +
       '<span class="spacer"></span><span class="card-sub" style="font-size:12.5px;color:var(--muted)">已上线 ' + db.platforms.filter(function (p) { return p.status === "live"; }).length + " · 即将上线 " + db.platforms.filter(function (p) { return p.status === "soon"; }).length + "</span></div>" +
       '<div class="card" data-od-id="platforms-table"><div class="table-wrap"><table class="data"><thead><tr>' +

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>管理后台 — 胜维科技官网</title>
-  <meta name="description" content="胜维科技官网内容管理后台：演示体验、内容中心、新闻中心、核心服务、关于我们、首页与联系信息的增删改。" />
+  <meta name="description" content="胜维科技官网内容管理后台：产品演示、内容中心、新闻中心、核心服务、关于我们、首页与联系信息的增删改。" />
   <link rel="stylesheet" href="admin.css" />
 </head>
 <body>
@@ -14,12 +14,8 @@
 
     <!-- ============ 侧边栏 ============ -->
     <aside class="sidebar" id="sidebar" data-od-id="sidebar">
-      <div class="sidebar-brand">
-        <div class="brand-mark" aria-hidden="true">胜</div>
-        <div class="brand-text">
-          <b>胜维科技</b>
-          <span>官网管理后台</span>
-        </div>
+      <div class="sidebar-brand" data-od-id="sidebar-brand">
+        <img class="brand-logo" src="../logo.png" alt="胜维科技Shengwei Tech" />
       </div>
 
       <nav class="sidebar-nav" id="sidebar-nav" aria-label="后台导航" data-od-id="sidebar-nav">
@@ -47,7 +43,7 @@
         </button>
         <button type="button" class="nav-item" data-module="platforms">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 9h20M9 4v16"/></svg>
-          <span>演示体验</span>
+          <span>产品演示</span>
           <span class="nav-count" data-count="platforms">0</span>
         </button>
         <button type="button" class="nav-item" data-module="articles">
@@ -79,17 +75,10 @@
       </nav>
 
       <div class="sidebar-foot">
-        <div class="foot-row">
-          <div class="foot-avatar" id="foot-avatar" aria-hidden="true">管</div>
-          <div>
-            <div class="foot-name" id="foot-name">超级管理员</div>
-            <div class="foot-role" id="foot-role">内容运营 · admin@shengwei.tech</div>
-          </div>
-        </div>
         <div class="foot-actions">
           <a class="foot-btn" href="../index.html" target="_blank" rel="noopener" data-od-id="goto-front">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/></svg>
-            预览前台
+            查看站点
           </a>
           <button type="button" class="foot-btn danger" id="btn-reset" data-od-id="btn-reset">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
@@ -108,10 +97,13 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
         <div class="topbar-right">
-          <a class="topbar-link" href="../index.html" target="_blank" rel="noopener" data-od-id="topbar-front">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/></svg>
-            查看前台站点
-          </a>
+          <div class="topbar-acct" data-od-id="topbar-acct">
+            <div class="foot-avatar" id="foot-avatar" aria-hidden="true">管</div>
+            <div class="topbar-acct-text">
+              <div class="foot-name" id="foot-name">超级管理员</div>
+              <div class="foot-role" id="foot-role">内容运营</div>
+            </div>
+          </div>
         </div>
       </header>
 
